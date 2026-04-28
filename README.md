@@ -3,8 +3,8 @@
 To run:
 
 ```cmd
-git clone https://github.com/Guilherme-Cavalcante/virtual-studies
-cd virtual-studies
+git clone https://github.com/Guilherme-Cavalcante/educhat
+cd educhat
 docker compose up --build
 ```
 

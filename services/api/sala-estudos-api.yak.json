@@ -1,0 +1,330 @@
+{
+    "version": 1,
+    "collections": [
+      {
+        "name": "Sala de Estudos Virtuais - API Tests",
+        "requests": [
+  
+          {
+            "id": "auth-login",
+            "name": "AUTH - Login",
+            "method": "POST",
+            "url": "http://localhost:8080/api/auth/authenticate",
+            "headers": [
+              { "name": "Content-Type", "value": "application/json" }
+            ],
+            "body": "{ \"username\": \"user@example.com\", \"password\": \"123456\" }",
+            "assertions": [
+              { "type": "status", "expected": 200 }
+            ]
+          },
+  
+          {
+            "id": "user-register",
+            "name": "USERS - Registrar Usuário",
+            "method": "POST",
+            "url": "http://localhost:8080/api/users/register",
+            "headers": [
+              { "name": "Content-Type", "value": "application/json" }
+            ],
+            "body": "{ \"name\": \"John Doe\", \"email\": \"john@example.com\", \"password\": \"123456\", \"teacher\": false }",
+            "assertions": [
+              { "type": "status", "expected": 201 }
+            ]
+          },
+  
+          {
+            "id": "chat-create",
+            "name": "CHATS - Criar Chat",
+            "method": "POST",
+            "url": "http://localhost:8080/api/chats",
+            "headers": [
+              { "name": "Authorization", "value": "Bearer <TOKEN_AQUI>" },
+              { "name": "Content-Type", "value": "application/json" }
+            ],
+            "body": "{ \"subject\": \"Matemática\" }",
+            "assertions": [
+              { "type": "status", "expected": 201 }
+            ]
+          },
+  
+          {
+            "id": "chat-list-teacher",
+            "name": "CHATS - Listar Chats do Professor",
+            "method": "GET",
+            "url": "http://localhost:8080/api/chats?page=0&size=10",
+            "headers": [
+              { "name": "Authorization", "value": "Bearer <TOKEN_AQUI>" }
+            ],
+            "assertions": [
+              { "type": "status", "expected": 200 }
+            ]
+          },
+  
+          {
+            "id": "chat-get-by-id",
+            "name": "CHATS - Buscar Chat por ID",
+            "method": "GET",
+            "url": "http://localhost:8080/api/chats/1",
+            "assertions": [
+              { "type": "status", "expected": 200 }
+            ]
+          },
+  
+          {
+            "id": "chat-update",
+            "name": "CHATS - Atualizar Chat",
+            "method": "PUT",
+            "url": "http://localhost:8080/api/chats/1",
+            "headers": [
+              { "name": "Authorization", "value": "Bearer <TOKEN_AQUI>" },
+              { "name": "Content-Type", "value": "application/json" }
+            ],
+            "body": "{ \"subject\": \"Álgebra Linear\" }",
+            "assertions": [
+              { "type": "status", "expected": 200 }
+            ]
+          },
+  
+          {
+            "id": "chat-assign-student",
+            "name": "CHATS - Vincular/Desvincular Estudante",
+            "method": "POST",
+            "url": "http://localhost:8080/api/chats/1/students/2",
+            "headers": [
+              { "name": "Authorization", "value": "Bearer <TOKEN_AQUI>" }
+            ],
+            "assertions": [
+              { "type": "status", "expected": 200 }
+            ]
+          },
+  
+          {
+            "id": "chat-delete",
+            "name": "CHATS - Deletar Chat",
+            "method": "DELETE",
+            "url": "http://localhost:8080/api/chats/1",
+            "headers": [
+              { "name": "Authorization", "value": "Bearer <TOKEN_AQUI>" }
+            ],
+            "assertions": [
+              { "type": "status", "expected": 204 }
+            ]
+          },
+  
+          {
+            "id": "message-create",
+            "name": "MESSAGES - Criar Mensagem",
+            "method": "POST",
+            "url": "http://localhost:8080/api/chats/1/messages",
+            "headers": [
+              { "name": "Authorization", "value": "Bearer <TOKEN_AQUI>" },
+              { "name": "Content-Type", "value": "application/json" }
+            ],
+            "body": "{ \"text\": \"Alguém pode ajudar?\" }",
+            "assertions": [
+              { "type": "status", "expected": 200 }
+            ]
+          },
+  
+          {
+            "id": "message-list",
+            "name": "MESSAGES - Listar Mensagens",
+            "method": "GET",
+            "url": "http://localhost:8080/api/chats/1/messages?page=0&size=10",
+            "headers": [
+              { "name": "Authorization", "value": "Bearer <TOKEN_AQUI>" }
+            ],
+            "assertions": [
+              { "type": "status", "expected": 200 }
+            ]
+          },
+  
+          {
+            "id": "message-thanks",
+            "name": "THANKS - Agradecer/Desagradecer Mensagem",
+            "method": "PUT",
+            "url": "http://localhost:8080/api/chats/1/messages/5/thanks",
+            "headers": [
+              { "name": "Authorization", "value": "Bearer <TOKEN_AQUI>" },
+              { "name": "Content-Type", "value": "application/json" }
+            ],
+            "body": "{ \"message\": \"Obrigado!\" }",
+            "assertions": [
+              { "type": "status", "expected": 200 }
+            ]
+          },
+  
+          {
+            "id": "material-create",
+            "name": "MATERIALS - Criar Material",
+            "method": "POST",
+            "url": "http://localhost:8080/api/chats/1/materials",
+            "headers": [
+              { "name": "Authorization", "value": "Bearer <TOKEN_AQUI>" },
+              { "name": "Content-Type", "value": "application/json" }
+            ],
+            "body": "{ \"title\": \"Introdução\", \"description\": \"PDF de estudo\", \"local\": \"https://drive.com/file.pdf\" }",
+            "assertions": [
+              { "type": "status", "expected": 200 }
+            ]
+          },
+  
+          {
+            "id": "material-list",
+            "name": "MATERIALS - Listar Materiais",
+            "method": "GET",
+            "url": "http://localhost:8080/api/chats/1/materials?page=0&size=10",
+            "headers": [
+              { "name": "Authorization", "value": "Bearer <TOKEN_AQUI>" }
+            ],
+            "assertions": [
+              { "type": "status", "expected": 200 }
+            ]
+          },
+  
+          {
+            "id": "material-get",
+            "name": "MATERIALS - Buscar Material por ID",
+            "method": "GET",
+            "url": "http://localhost:8080/api/chats/1/materials/3",
+            "headers": [
+              { "name": "Authorization", "value": "Bearer <TOKEN_AQUI>" }
+            ],
+            "assertions": [
+              { "type": "status", "expected": 200 }
+            ]
+          },
+  
+          {
+            "id": "material-update",
+            "name": "MATERIALS - Atualizar Material",
+            "method": "PUT",
+            "url": "http://localhost:8080/api/chats/1/materials/3",
+            "headers": [
+              { "name": "Authorization", "value": "Bearer <TOKEN_AQUI>" },
+              { "name": "Content-Type", "value": "application/json" }
+            ],
+            "body": "{ \"title\": \"PDF atualizado\" }",
+            "assertions": [
+              { "type": "status", "expected": 200 }
+            ]
+          },
+  
+          {
+            "id": "material-delete",
+            "name": "MATERIALS - Deletar Material",
+            "method": "DELETE",
+            "url": "http://localhost:8080/api/chats/1/materials/3",
+            "headers": [
+              { "name": "Authorization", "value": "Bearer <TOKEN_AQUI>" }
+            ],
+            "assertions": [
+              { "type": "status", "expected": 204 }
+            ]
+          },
+  
+          {
+            "id": "exercise-create",
+            "name": "EXERCISES - Criar Exercício",
+            "method": "POST",
+            "url": "http://localhost:8080/api/chats/1/exercises",
+            "headers": [
+              { "name": "Authorization", "value": "Bearer <TOKEN_AQUI>" },
+              { "name": "Content-Type", "value": "application/json" }
+            ],
+            "body": "{ \"title\": \"Lista 1\", \"description\": \"Funções\", \"link\": \"https://forms.com/1\" }",
+            "assertions": [
+              { "type": "status", "expected": 200 }
+            ]
+          },
+  
+          {
+            "id": "exercise-list",
+            "name": "EXERCISES - Listar Exercícios",
+            "method": "GET",
+            "url": "http://localhost:8080/api/chats/1/exercises?page=0&size=10",
+            "headers": [
+              { "name": "Authorization", "value": "Bearer <TOKEN_AQUI>" }
+            ],
+            "assertions": [
+              { "type": "status", "expected": 200 }
+            ]
+          },
+  
+          {
+            "id": "exercise-get",
+            "name": "EXERCISES - Buscar Exercício",
+            "method": "GET",
+            "url": "http://localhost:8080/api/chats/1/exercises/4",
+            "headers": [
+              { "name": "Authorization", "value": "Bearer <TOKEN_AQUI>" }
+            ],
+            "assertions": [
+              { "type": "status", "expected": 200 }
+            ]
+          },
+  
+          {
+            "id": "exercise-update",
+            "name": "EXERCISES - Atualizar Exercício",
+            "method": "PUT",
+            "url": "http://localhost:8080/api/chats/1/exercises/4",
+            "headers": [
+              { "name": "Authorization", "value": "Bearer <TOKEN_AQUI>" },
+              { "name": "Content-Type", "value": "application/json" }
+            ],
+            "body": "{ \"title\": \"Lista revisada\" }",
+            "assertions": [
+              { "type": "status", "expected": 200 }
+            ]
+          },
+  
+          {
+            "id": "exercise-delete",
+            "name": "EXERCISES - Deletar Exercício",
+            "method": "DELETE",
+            "url": "http://localhost:8080/api/chats/1/exercises/4",
+            "headers": [
+              { "name": "Authorization", "value": "Bearer <TOKEN_AQUI>" }
+            ],
+            "assertions": [
+              { "type": "status", "expected": 204 }
+            ]
+          },
+  
+          {
+            "id": "answer-create",
+            "name": "ANSWERS - Enviar Resposta",
+            "method": "POST",
+            "url": "http://localhost:8080/api/chats/1/exercises/4/answers",
+            "headers": [
+              { "name": "Authorization", "value": "Bearer <TOKEN_AQUI>" },
+              { "name": "Content-Type", "value": "application/json" }
+            ],
+            "body": "{ \"exerciseId\": 4, \"studentId\": 2, \"grade\": 8.5 }",
+            "assertions": [
+              { "type": "status", "expected": 201 }
+            ]
+          },
+  
+          {
+            "id": "answer-update",
+            "name": "ANSWERS - Atualizar Resposta",
+            "method": "PUT",
+            "url": "http://localhost:8080/api/chats/1/exercises/4/answers/10",
+            "headers": [
+              { "name": "Authorization", "value": "Bearer <TOKEN_AQUI>" },
+              { "name": "Content-Type", "value": "application/json" }
+            ],
+            "body": "{ \"grade\": 9.0 }",
+            "assertions": [
+              { "type": "status", "expected": 200 }
+            ]
+          }
+  
+        ]
+      }
+    ]
+  }
+  

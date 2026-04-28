@@ -1,7 +1,7 @@
 services:
-  virtual-studies:
-    build: ./virtual-studies
-    container_name: virtual-studies
+  educhat:
+    build: ./educhat
+    container_name: educhat
     ports:
       - "8080:8080"
 
