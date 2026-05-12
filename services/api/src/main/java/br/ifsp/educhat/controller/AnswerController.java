@@ -19,7 +19,7 @@ import br.ifsp.educhat.service.AnswerService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
-@Deprecated
+// @Deprecated
 @RestController
 @RequestMapping("/api/answers")
 @Tag(name = "Answers")

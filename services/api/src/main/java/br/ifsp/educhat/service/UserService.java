@@ -1,5 +1,7 @@
 package br.ifsp.educhat.service;
 
+import java.time.LocalDateTime;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -41,10 +43,12 @@ public class UserService {
     public UserResponseDTO createUser(UserRegistrationDTO userDto) {
         if (userDto.isTeacher()) {
             Teacher teacher = modelMapper.map(userDto, Teacher.class);
+            teacher.setCreatedAt(LocalDateTime.now());
             Teacher createdTeacher = teacherRepository.save(teacher);
             return modelMapper.map(createdTeacher, UserResponseDTO.class);
         }
         Student student = modelMapper.map(userDto, Student.class);
+        student.setCreatedAt(LocalDateTime.now());
         Student createdStudent = studentRepository.save(student);
         return modelMapper.map(createdStudent, UserResponseDTO.class);
     }

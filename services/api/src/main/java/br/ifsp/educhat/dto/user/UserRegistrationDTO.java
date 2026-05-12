@@ -1,5 +1,7 @@
 package br.ifsp.educhat.dto.user;
 
+import java.time.LocalDateTime;
+
 import br.ifsp.educhat.model.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
@@ -25,4 +27,5 @@ public class UserRegistrationDTO {
     private String password;
 
     private boolean teacher = false;
+    private LocalDateTime createdAt;
 }

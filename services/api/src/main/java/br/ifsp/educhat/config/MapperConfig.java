@@ -27,55 +27,53 @@ public class MapperConfig {
     @Bean
     public ModelMapper modelMapper() {
         ModelMapper modelMapper = new ModelMapper();
-        modelMapper.addMappings(new PropertyMap<Answer, AnswerResponseDTO>() {
-            @Override
-            protected void configure() {
-                map().setExerciseId(source.getExercise().getId());
-                map().setStudentId(source.getStudent().getId());
-            }
-        });
-        modelMapper.addMappings(new PropertyMap<Exercise, ExerciseResponseDTO>() {
-            @Override
-            protected void configure() {
-                map().setChatId(source.getChat().getId());
-            }
-        });
-        modelMapper.addMappings(new PropertyMap<Material, MaterialResponseDTO>() {
-            @Override
-            protected void configure() {
-                map().setChatId(source.getChat().getId());
-            }
-        });
-        modelMapper.addMappings(new PropertyMap<Meeting, MeetingResponseDTO>() {
-            @Override
-            protected void configure() {
-                map().setChatId(source.getChat().getId());
-            }
-        });
-        modelMapper.addMappings(new PropertyMap<Thanks, ThanksResponseDTO>() {
+        modelMapper.createTypeMap(Answer.class, AnswerResponseDTO.class)
+                .addMappings(mapper -> {
+                    mapper.map(
+                            src -> src.getExercise().getId(),
+                            AnswerResponseDTO::setExerciseId);
 
-            @Override
-            protected void configure() {
-                map().setMessageId(source.getMessage().getId());
-                map().setStudentId(source.getStudent().getId());
-            }
-        });
-        modelMapper.addMappings(new PropertyMap<UserRegistrationDTO, Student>() {
+                    mapper.map(
+                            src -> src.getStudent().getId(),
+                            AnswerResponseDTO::setStudentId);
+                });
+        modelMapper.createTypeMap(Exercise.class, ExerciseResponseDTO.class)
+                .addMappings(mapper -> {
+                    mapper.map(
+                        src -> src.getChat().getId(),
+                        ExerciseResponseDTO::setChatId);
+                });
+        modelMapper.createTypeMap(Material.class, MaterialResponseDTO.class)
+                .addMappings(mapper -> {
+                    mapper.map(
+                        src -> src.getChat().getId(),
+                        MaterialResponseDTO::setChatId);
+                });
+        modelMapper.createTypeMap(Meeting.class, MeetingResponseDTO.class)
+                .addMappings(mapper -> {
+                    mapper.map(
+                        src -> src.getChat().getId(),
+                        MeetingResponseDTO::setChatId);
+                });
+        modelMapper.createTypeMap(Thanks.class, ThanksResponseDTO.class)
+                .addMappings(mapper -> {
+                    mapper.map(
+                        src -> src.getMessage().getId(),
+                        ThanksResponseDTO::setMessageId);
+                    mapper.map(
+                        src -> src.getStudent().getId(),
+                        ThanksResponseDTO::setStudentId);
+                });
+        modelMapper.createTypeMap(UserRegistrationDTO.class, Student.class);
+        modelMapper.createTypeMap(UserRegistrationDTO.class, Teacher.class);
+        // modelMapper.addMappings(new PropertyMap<UserRegistrationDTO, Teacher>() {
             
-            @Override
-            protected void configure() {
-                map().setCreatedAt(LocalDateTime.now());
-                map().setRole(Role.STUDENT);
-            }
-        });
-        modelMapper.addMappings(new PropertyMap<UserRegistrationDTO, Teacher>() {
-            
-            @Override
-            protected void configure() {
-                map().setCreatedAt(LocalDateTime.now());
-                map().setRole(Role.TEACHER);
-            }
-        });
+        //     @Override
+        //     protected void configure() {
+        //         map().setCreatedAt(source.getCreatedAt());
+        //         map().setRole(source.getRole());
+        //     }
+        // });
         return modelMapper;
     }
 }
