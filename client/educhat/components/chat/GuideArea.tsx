@@ -31,6 +31,8 @@ const styles = StyleSheet.create({
     tabContainer: {
         flex: 1,
         width: '100%',
+        paddingHorizontal: '10%',
+        paddingLeft: '5%'
     },
     flexContainer: {
         flex: 1,

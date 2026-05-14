@@ -8,7 +8,6 @@ type Props = MessageInfo & {
 }
 
 export default function Message({id, text, author, thanks, createdAt, authorIsMe = false}: Props) {
-    console.log(createdAt)
     const time = createdAt.hour.toString() + ':' + createdAt.minute.toString()
 
     return (

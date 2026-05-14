@@ -22,7 +22,7 @@ export default function ParticipantsArea() {
 const styles = StyleSheet.create({
     tabContainer: {
         flex: 1, // Trava a proporção da aba
-        width: '100%',
+        padding: '5%',
     },
     flexContainer: {
         flex: 1,

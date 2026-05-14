@@ -23,14 +23,14 @@ export default function MeetingsArea() {
 
 const styles = StyleSheet.create({
     tabContainer: {
-        flex: 1,
-        width: '100%',
+        flex: 1, // Trava a proporção da aba
+        padding: '5%',
     },
     flexContainer: {
         flex: 1,
     },
     listContainer: {
         paddingTop: 16,
-        paddingBottom: 30,
+        paddingBottom: 40, // Espaço extra para o último card
     },
 })

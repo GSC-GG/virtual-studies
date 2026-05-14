@@ -15,13 +15,11 @@ export class ChatSocketService {
       reconnectDelay: 5000,
 
       debug: str => {
-        console.log(str)
       },
 
       onConnect: () => {
         this.connected = true
 
-        console.log('WebSocket conectado')
 
         this.client?.subscribe(
           `/topic/chats/${chatId}`,
@@ -41,13 +39,11 @@ export class ChatSocketService {
     })
 
     this.client.activate()
-    console.log('active')
   }
 
   sendMessage(chatId: number, payload: any) {
 
     if (!this.connected) {
-      console.log('STOMP não conectado')
       return
     }
 

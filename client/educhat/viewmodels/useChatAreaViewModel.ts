@@ -28,7 +28,6 @@ export default function useChatAreaViewModel(idChat: number) {
         socketService.sendMessage(idChat, {
             text: content
         })
-        console.log(messages)
     }
 
     return {

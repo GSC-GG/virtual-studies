@@ -15,7 +15,7 @@ export default function useGuideAreaViewModel(idChat: number) {
         createdAt: Temporal.Now.zonedDateTimeISO()
     }])
     const [exercises, setExercises] = useState<ExerciseInfo[]>([{
-        id: 1,
+        id: 2,
         title: "Exercícios de Matrizes",
         description: "Lista de exercícios",
         link: "docs.google.com",

@@ -27,7 +27,9 @@ export default function ChatInfoView({ subject, teacher, createdAt }: ChatInfo) 
 
 const styles = StyleSheet.create({
     container: {
-        paddingVertical: 20,
+        // paddingHorizontal: '10%',
+        // paddingLeft: '5%',
+        padding: 20,
         gap: 8,
     },
     row: {

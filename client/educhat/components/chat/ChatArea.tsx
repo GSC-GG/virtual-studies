@@ -31,7 +31,7 @@ export default function ChatArea() {
                 renderItem={({ item }) => (
                     <Message
                         {...item}
-                        // authorIsMe={item.author.name === "Você"} // Lógica de exemplo
+                    // authorIsMe={item.author.name === "Você"} // Lógica de exemplo
                     />
                 )}
                 contentContainerStyle={styles.listPadding}
@@ -72,10 +72,16 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#FFFFFF',
-        borderRadius: 32, // Card arredondado interno
+        borderRadius: 32,
         marginTop: 16,
+        marginHorizontal: '50%',
+
+        width: '90%',
+        alignSelf: 'center',
+
         padding: 16,
-        // Sombra leve
+        paddingLeft: '5%',
+
         elevation: 4,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },

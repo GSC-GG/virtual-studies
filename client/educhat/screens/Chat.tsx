@@ -58,49 +58,53 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#F8F9FD',
-        paddingHorizontal: 20,
     },
+
     menuCard: {
+        marginHorizontal: 20,
         backgroundColor: '#FFFFFF',
         borderRadius: 28,
         padding: 8,
+
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'space-between',
-        elevation: 2,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 8,
     },
+
     menuItem: {
-        width: '49%',
+        width: '48%',
         height: 50,
+
         justifyContent: 'center',
         alignItems: 'center',
+
         borderRadius: 22,
-        marginVertical: 2,
+        marginBottom: 8,
     },
+
     activeMenuItem: {
         backgroundColor: '#E8EAF6',
     },
+
     menuText: {
         fontSize: 16,
         fontWeight: '600',
         color: '#71767A',
     },
+
     activeMenuText: {
         color: '#1A1C1E',
     },
+
     content: {
         flex: 1,
         marginTop: 20,
     }
-});
+})
 
 const areas = [
     <ChatArea />,           //0
     <GuideArea />,          //1
     <MeetingsArea />,       //2
-    <ParticipantsArea/>,   //3
+    <ParticipantsArea />,   //3
 ]
