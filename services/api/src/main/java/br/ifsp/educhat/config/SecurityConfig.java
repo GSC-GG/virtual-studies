@@ -43,6 +43,7 @@ public class SecurityConfig {
             CustomJwtAuthenticationConverter customJwtAuthenticationConverter) throws Exception {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/ws/**").permitAll()
                         .requestMatchers(
                                 "/api/users/register",
                                 "/v3/api-docs/**",

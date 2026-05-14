@@ -3,6 +3,8 @@ package br.ifsp.educhat.controller;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -92,15 +94,14 @@ public class ChatController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Send message to the chat")
-    @PostMapping("/{idChat}/messages")
-    public ResponseEntity<PagedResponse<MessageResponseDTO>> createMessage(@PathVariable Long idChat,
-            @Valid @RequestBody MessageRequestDTO message,
-            @AuthenticationPrincipal UserAuthenticated authentication, Pageable pageable) {
-        PagedResponse<MessageResponseDTO> chatMessages = chatService.createMessage(idChat, message,
-                authentication.getUser(), pageable);
-        return ResponseEntity.status(HttpStatus.CREATED).body(chatMessages);
-    }
+    // @Operation(summary = "Send message to the chat")
+    // @MessageMapping("/{idChat}/messages")
+    // @SendTo("/{idChat}/messages")
+    // public void sendMessage(@PathVariable Long idChat,
+    //         @Valid @RequestBody MessageRequestDTO message,
+    //         @AuthenticationPrincipal UserAuthenticated authentication) {
+    //     chatService.createMessage(idChat, message, authentication.getUser());
+    // }
 
     @Operation(summary = "List chat messages")
     @GetMapping("/{idChat}/messages")

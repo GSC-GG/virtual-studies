@@ -8,13 +8,14 @@ type Props = MessageInfo & {
 }
 
 export default function Message({id, text, author, thanks, createdAt, authorIsMe = false}: Props) {
+    console.log(createdAt)
     const time = createdAt.hour.toString() + ':' + createdAt.minute.toString()
 
     return (
         <View style={[styles.wrapper, authorIsMe ? styles.myWrapper : styles.otherWrapper]}>
             <View style={[styles.bubble, authorIsMe ? styles.myBubble : styles.otherBubble]}>
                 <View style={styles.header}>
-                    <Text style={[styles.author, authorIsMe && styles.myText]}>{authorIsMe ? "Você" : author.name}</Text>
+                    <Text style={[styles.author, authorIsMe && styles.myText]}>{authorIsMe ? "Você" : "Julia"}</Text>
                     <Text style={[styles.time, authorIsMe && styles.myText]}>{time}</Text>
                 </View>
                 <Text style={[styles.messageText, authorIsMe && styles.myText]}>{text}</Text>

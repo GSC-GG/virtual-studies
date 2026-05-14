@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@js-temporal/polyfill": "^0.5.1",
+    "@stomp/stompjs": "^7.3.0",
     "axios": "^1.15.2",
     "expo": "~54.0.33",
     "expo-status-bar": "~3.0.9",

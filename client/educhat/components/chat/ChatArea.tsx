@@ -2,9 +2,14 @@ import { StyleSheet, FlatList, Text, TextInput, TouchableOpacity, View } from "r
 import Message from "./Message"
 import useChatAreaViewModel from "../../viewmodels/useChatAreaViewModel"
 import { BsClockHistory, BsCamera, BsSendFill } from "react-icons/bs";
+import { Temporal } from "@js-temporal/polyfill";
 
 export default function ChatArea() {
-    const { messages } = useChatAreaViewModel(1)
+    const { text,
+        setText,
+        messages,
+        sendMessage
+    } = useChatAreaViewModel(1)
 
     return (
         <View style={styles.container}>
@@ -24,9 +29,9 @@ export default function ChatArea() {
                 data={messages}
                 keyExtractor={item => item.id.toString()}
                 renderItem={({ item }) => (
-                    <Message 
-                        {...item} 
-                        authorIsMe={item.author.name === "Você"} // Lógica de exemplo
+                    <Message
+                        {...item}
+                        // authorIsMe={item.author.name === "Você"} // Lógica de exemplo
                     />
                 )}
                 contentContainerStyle={styles.listPadding}
@@ -36,16 +41,23 @@ export default function ChatArea() {
             {/* Campo de Input */}
             <View style={styles.inputRow}>
                 <View style={styles.inputContainer}>
-                    <TextInput 
-                        placeholder="Digite..." 
+                    <TextInput
+                        placeholder="Digite..."
                         style={styles.input}
                         placeholderTextColor="#999"
+                        onChangeText={setText}
                     />
                     <TouchableOpacity>
                         <BsCamera size={20} color="#71767A" />
                     </TouchableOpacity>
                 </View>
-                <TouchableOpacity style={styles.sendBtn}>
+                <TouchableOpacity
+                    style={styles.sendBtn}
+                    onPress={() => {
+                        sendMessage(text)
+                        setText('')
+                    }}
+                >
                     <BsSendFill size={18} color="#FFF" />
                 </TouchableOpacity>
             </View>

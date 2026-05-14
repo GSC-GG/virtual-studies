@@ -40,7 +40,7 @@ public class MessageController {
         return ResponseEntity.ok(messageService.getMessageById(id, authentication.getUser()));
     }
     
-    @Operation(summary = "Editar message")
+    @Operation(summary = "Edit message")
     @PutMapping("/{id}")
     public ResponseEntity<MessageResponseDTO> updateMessage(@PathVariable Long id,
             @Valid @RequestBody MessagePatchDTO messageDto,
