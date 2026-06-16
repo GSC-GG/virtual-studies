@@ -1,30 +1,30 @@
 import { useEffect, useState } from "react";
-import { API_BASE } from "./apiBase";
-import axios from "axios";
-import { Temporal } from "@js-temporal/polyfill";
+import { listMeetings } from "../services/rest";
 import { MeetingInfo } from "../types/MeetingInfo";
+import { Temporal } from "@js-temporal/polyfill";
 
-export default function useGuideAreaViewModel(idChat: number) {
-    const [meetings, setMeetings] = useState<MeetingInfo[]>([{
-        id: 1,
-        title: "Revisão para prova",
-        description: "",
-        link: "meet.google.com",
-        date: Temporal.Now.zonedDateTimeISO().add({hours: 3})
-    }])
+export default function useGuideAreaViewModel(idChat: number, token: string) {
+    const [meetings, setMeetings] = useState<MeetingInfo[]>([])
 
-    // useEffect(() => {
-    //     async function fetchMeetings() {
-    //         try {
-    //             const res = await axios.get(`${API_BASE}/chats/${idChat}/meetings`)
-    //             setMeetings(res.data)
-    //         } catch (error) {
+    useEffect(() => {
+        async function fetchMeetings() {
+            try {
+                const res = await listMeetings(idChat, token)
+                const items = (res.content || []).map((m: any): MeetingInfo => ({
+                    id: m.id,
+                    title: m.title,
+                    description: m.description,
+                    link: m.link,
+                    date: Temporal.ZonedDateTime.from(m.createdAt + '[' + Temporal.Now.timeZoneId() + ']'),
+                }))
+                setMeetings(items)
+            } catch (error) {
+                console.log('Erro ao carregar reuniões')
+            }
+        }
 
-    //         }
-    //     }
+        fetchMeetings()
+    }, [idChat, token])
 
-    //     fetchMeetings()
-    // }, [chat])
-
-    return { meetings }
+    return { meetings, setMeetings }
 }

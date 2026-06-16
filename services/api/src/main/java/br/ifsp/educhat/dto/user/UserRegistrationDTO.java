@@ -26,6 +26,11 @@ public class UserRegistrationDTO {
     @NotNull(message = "Campo 'password' não pode ser nulo")
     private String password;
 
+    private String role = "student";
     private boolean teacher = false;
     private LocalDateTime createdAt;
+
+    public boolean isTeacher() {
+        return "teacher".equalsIgnoreCase(role) || teacher;
+    }
 }

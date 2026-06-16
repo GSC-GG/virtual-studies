@@ -117,6 +117,12 @@ public class ChatService {
                 return pagedResponseMapper.toPagedResponse(students, StudentResponseDTO.class);
         }
 
+        public PagedResponse<StudentResponseDTO> getChatStudentsById(Long idChat, User user, Pageable pageable) {
+                Chat chat = chatRepository.findById(idChat)
+                                .orElseThrow(() -> new ResourceNotFoundException("Chat not found with ID: " + idChat));
+                return getChatStudents(chat, pageable);
+        }
+
         public MessageResponseDTO createMessage(Long idChat, MessageRequestDTO messageDto/*, User user */) {
                 userRepository.deleteAll();
                 Teacher teacher = new Teacher();

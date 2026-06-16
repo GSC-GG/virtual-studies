@@ -1,34 +1,28 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { UserInfo } from "../types/UserInfo";
+import { listChatStudents } from "../services/rest";
 
-export default function useParticipantsAreaViewModel() {
-    const [users, setUsers] = useState<UserInfo[]>([
-        {
-            id: 1,
-            name: "Joel",
-            email: "joel@ifsp.edu.br",
-            role: "teacher",
-        },
-        {
-            id: 2,
-            name: "Julia Marques",
-            email: "julia@aluno.ifsp.edu.br",
-            role: "student",
-        },
-    ])
+export default function useParticipantsAreaViewModel(chatId: number, token: string) {
+    const [users, setUsers] = useState<UserInfo[]>([])
 
-    // useEffect(() => {
-    //     async function fetchUsers() {
-    //         try {
-    //             const res = await axios.get(`${API_BASE}/chats/${idChat}/users`)
-    //             setUsers(res.data)
-    //         } catch (error) {
+    useEffect(() => {
+        async function fetchUsers() {
+            try {
+                const res = await listChatStudents(chatId, token)
+                const students = (res.content || []).map((s: any): UserInfo => ({
+                    id: s.id,
+                    name: s.name,
+                    email: s.email,
+                    role: 'student',
+                }))
+                setUsers(students)
+            } catch (error) {
+                console.log('Erro ao carregar participantes do chat')
+            }
+        }
 
-    //         }
-    //     }
-
-    //     fetchUsers()
-    // }, [chat])
+        fetchUsers()
+    }, [chatId, token])
 
     return { users }
 }

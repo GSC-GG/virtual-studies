@@ -24,7 +24,7 @@ public class JwtService {
                 .issuer("spring-security")
                 .issuedAt(now)
                 .expiresAt(now.plusSeconds(expire))
-                .subject(user.getName())
+                .subject(user.getEmail())
                 .claim("userId", user.getId())
                 .build();
     

@@ -5,6 +5,7 @@ export
         id: number,
         text: string,
         author: {
+            id: number,
             name: string
         },
         thanks: any[],

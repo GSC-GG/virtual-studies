@@ -10,7 +10,7 @@ export class ChatSocketService {
   ) {
     this.client = new Client({
       webSocketFactory: () =>
-        new WebSocket('ws://192.168.0.102:8080/ws'),
+        new WebSocket('ws://localhost:8080/ws'),
 
       reconnectDelay: 5000,
 

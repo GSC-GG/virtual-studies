@@ -26,6 +26,7 @@ public class AuthenticationController {
     public String authenticate(@RequestBody AuthenticationDTO request) {
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                 request.getUsername(), request.getPassword());
+        System.out.println(request);
         return authenticationService.authenticate(authentication);
     }
 }

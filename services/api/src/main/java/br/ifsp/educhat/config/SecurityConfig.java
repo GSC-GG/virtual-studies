@@ -2,6 +2,7 @@ package br.ifsp.educhat.config;
 
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.util.List;
 
 import br.ifsp.educhat.security.CustomJwtAuthenticationConverter;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,6 +18,9 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
@@ -41,10 +45,14 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http,
             CustomJwtAuthenticationConverter customJwtAuthenticationConverter) throws Exception {
-        http.csrf(csrf -> csrf.disable())
+        http
+                .cors(cors -> {
+                })
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers(
+                                "/api/auth/**",
                                 "/api/users/register",
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html",
@@ -89,5 +97,26 @@ public class SecurityConfig {
     @Bean
     public RSAPrivateKey privateKey(@Value("classpath:certs/private.pem") Resource resource) throws Exception {
         return PemUtils.loadPrivateKey(resource.getInputStream());
+    }
+
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+
+        config.setAllowedOrigins(List.of(
+                "http://localhost:8081"));
+
+        config.setAllowedMethods(List.of(
+                "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+
+        config.setAllowedHeaders(List.of("*"));
+
+        config.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+
+        source.registerCorsConfiguration("/**", config);
+
+        return source;
     }
 }

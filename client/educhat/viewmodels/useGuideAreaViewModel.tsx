@@ -1,39 +1,49 @@
 import { useEffect, useState } from "react";
-import { API_BASE } from "./apiBase";
-import axios from "axios";
-import { ChatInfo } from "../types/ChatInfo";
-import { Temporal } from "@js-temporal/polyfill";
+import { listMaterials, listExercises } from "../services/rest";
 import { MaterialInfo } from "../types/MaterialInfo";
 import { ExerciseInfo } from "../types/ExerciseInfo";
+import { Temporal } from "@js-temporal/polyfill";
 
-export default function useGuideAreaViewModel(idChat: number) {
-    const [materials, setMaterials] = useState<MaterialInfo[]>([{
-        id: 1,
-        title: "Apostila de Álgebra Linear",
-        description: "Apostila",
-        local: "drive.google.com",
-        createdAt: Temporal.Now.zonedDateTimeISO()
-    }])
-    const [exercises, setExercises] = useState<ExerciseInfo[]>([{
-        id: 2,
-        title: "Exercícios de Matrizes",
-        description: "Lista de exercícios",
-        link: "docs.google.com",
-        createdAt: Temporal.Now.zonedDateTimeISO()
-    }])
+export default function useGuideAreaViewModel(idChat: number, token: string) {
+    const [materials, setMaterials] = useState<MaterialInfo[]>([])
+    const [exercises, setExercises] = useState<ExerciseInfo[]>([])
 
-    // useEffect(() => {
-    //     async function fetchMaterials() {
-    //         try {
-    //             const res = await axios.get(`${API_BASE}/chats/${idChat}/materials`)
-    //             setMaterials(res.data)
-    //         } catch (error) {
+    useEffect(() => {
+        async function fetchMaterials() {
+            try {
+                const res = await listMaterials(idChat, token)
+                const items = (res.content || []).map((m: any): MaterialInfo => ({
+                    id: m.id,
+                    title: m.title,
+                    description: m.description,
+                    local: m.local,
+                    createdAt: Temporal.ZonedDateTime.from(m.createdAt + '[' + Temporal.Now.timeZoneId() + ']'),
+                }))
+                setMaterials(items)
+            } catch (error) {
+                console.log('Erro ao carregar materiais')
+            }
+        }
 
-    //         }
-    //     }
+        async function fetchExercises() {
+            try {
+                const res = await listExercises(idChat, token)
+                const items = (res.content || []).map((e: any): ExerciseInfo => ({
+                    id: e.id,
+                    title: e.title,
+                    description: e.description,
+                    link: e.link,
+                    createdAt: Temporal.ZonedDateTime.from(e.createdAt + '[' + Temporal.Now.timeZoneId() + ']'),
+                }))
+                setExercises(items)
+            } catch (error) {
+                console.log('Erro ao carregar exercícios')
+            }
+        }
 
-    //     fetchMaterials()
-    // }, [chat])
+        fetchMaterials()
+        fetchExercises()
+    }, [idChat, token])
 
-    return { materials, exercises }
+    return { materials, exercises, setMaterials, setExercises }
 }

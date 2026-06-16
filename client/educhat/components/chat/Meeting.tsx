@@ -1,6 +1,6 @@
 import { Temporal } from "@js-temporal/polyfill"
 import { BsCameraVideo, BsCalendar4Event } from "react-icons/bs"
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native"
+import { StyleSheet, Text, TouchableOpacity, View, Linking } from "react-native"
 import { capitalize } from "../../utils/format"
 import { MeetingInfo } from "../../types/MeetingInfo"
 
@@ -22,7 +22,7 @@ export default function Meeting({ id, title, description, link, date, closed = f
                 </View>
             </View>
 
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity style={styles.button} onPress={() => Linking.openURL(link)}>
                 <Text style={styles.buttonText}>Entrar na reunião</Text>
             </TouchableOpacity>
         </View>

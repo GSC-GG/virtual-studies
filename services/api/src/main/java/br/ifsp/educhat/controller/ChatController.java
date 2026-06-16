@@ -147,6 +147,15 @@ public class ChatController {
         return ResponseEntity.ok(chatService.listExercises(idChat, authentication.getUser(), pageable));
     }
 
+    @Operation(summary = "List chat students")
+    @GetMapping("/{idChat}/students")
+    public ResponseEntity<PagedResponse<StudentResponseDTO>> listChatStudents(
+            @PathVariable Long idChat,
+            Pageable pageable,
+            @AuthenticationPrincipal UserAuthenticated authentication) {
+        return ResponseEntity.ok(chatService.getChatStudentsById(idChat, authentication.getUser(), pageable));
+    }
+
     @Operation(summary = "Schedule meeting")
     @PostMapping("/{idChat}/meetings")
     @PreAuthorize("hasRole('TEACHER')")

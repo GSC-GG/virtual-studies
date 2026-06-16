@@ -3,20 +3,18 @@ import Message from "./Message"
 import useChatAreaViewModel from "../../viewmodels/useChatAreaViewModel"
 import { BsClockHistory, BsCamera, BsSendFill } from "react-icons/bs";
 import { Temporal } from "@js-temporal/polyfill";
+import { useChatContext } from "../../viewmodels/ChatContext";
 
 export default function ChatArea() {
-    const { text,
-        setText,
-        messages,
-        sendMessage
-    } = useChatAreaViewModel(1)
+    const { chatId, token, userId } = useChatContext()
+    const { text, setText, messages, sendMessage } = useChatAreaViewModel(chatId, token)
 
     return (
         <View style={styles.container}>
             {/* Header da Área de Chat */}
             <View style={styles.headerRow}>
                 <View style={styles.dateBadge}>
-                    <Text style={styles.dateText}>Dia de Mês de Ano</Text>
+                    <Text style={styles.dateText}>Chat em tempo real</Text>
                 </View>
                 <TouchableOpacity style={styles.refreshBtn}>
                     <BsClockHistory size={20} color="#5D5FEF" />
@@ -31,7 +29,7 @@ export default function ChatArea() {
                 renderItem={({ item }) => (
                     <Message
                         {...item}
-                    // authorIsMe={item.author.name === "Você"} // Lógica de exemplo
+                        authorIsMe={item.author?.id === userId}
                     />
                 )}
                 contentContainerStyle={styles.listPadding}
@@ -58,7 +56,7 @@ export default function ChatArea() {
                         setText('')
                     }}
                 >
-                    <BsSendFill size={18} color="#FFF" />
+                    < BsSendFill size={18} color="#FFF" />
                 </TouchableOpacity>
             </View>
         </View>
@@ -75,13 +73,10 @@ const styles = StyleSheet.create({
         borderRadius: 32,
         marginTop: 16,
         marginHorizontal: '50%',
-
         width: '90%',
         alignSelf: 'center',
-
         padding: 16,
         paddingLeft: '5%',
-
         elevation: 4,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },

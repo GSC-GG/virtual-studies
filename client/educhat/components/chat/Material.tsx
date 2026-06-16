@@ -3,8 +3,16 @@ import { BsCalendar, BsCalendar4Event, BsJournalBookmark } from "react-icons/bs"
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native"
 import { capitalize } from "../../utils/format"
 import { MaterialInfo } from "../../types/MaterialInfo"
+import { useNavigation } from "@react-navigation/native"
+import { NativeStackNavigationProp } from "@react-navigation/native-stack"
+import { RootStackParamList } from "../../types/Navigation"
+import { useChatContext } from "../../viewmodels/ChatContext"
 
-export default function Material({ title, createdAt }: MaterialInfo) {
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>
+
+export default function Material({ id, title, createdAt }: MaterialInfo) {
+    const navigation = useNavigation<NavigationProp>()
+    const { chatId, token } = useChatContext()
     const dateFormatted = `${createdAt.day || '10'}/${createdAt.month || '11'}/${createdAt.year}`
 
     return (
@@ -22,7 +30,7 @@ export default function Material({ title, createdAt }: MaterialInfo) {
                 </View>
             </View>
 
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('ContentView', { chatId, contentId: id, contentType: 'material', token })}>
                 <Text style={styles.buttonText}>Acessar material</Text>
             </TouchableOpacity>
         </View>

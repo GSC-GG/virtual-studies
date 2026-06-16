@@ -15,6 +15,7 @@ import br.ifsp.educhat.dto.user.UserResponseDTO;
 import br.ifsp.educhat.exceptions.ResourceNotFoundException;
 import br.ifsp.educhat.mapper.PagedResponseMapper;
 import br.ifsp.educhat.model.Chat;
+import br.ifsp.educhat.model.Role;
 import br.ifsp.educhat.model.Student;
 import br.ifsp.educhat.model.Teacher;
 import br.ifsp.educhat.model.User;
@@ -44,27 +45,39 @@ public class UserService {
         if (userDto.isTeacher()) {
             Teacher teacher = modelMapper.map(userDto, Teacher.class);
             teacher.setCreatedAt(LocalDateTime.now());
+            teacher.setRole(Role.TEACHER);
             Teacher createdTeacher = teacherRepository.save(teacher);
-            return modelMapper.map(createdTeacher, UserResponseDTO.class);
+            return toResponseDTO(createdTeacher);
         }
         Student student = modelMapper.map(userDto, Student.class);
         student.setCreatedAt(LocalDateTime.now());
+        student.setRole(Role.STUDENT);
         Student createdStudent = studentRepository.save(student);
-        return modelMapper.map(createdStudent, UserResponseDTO.class);
+        return toResponseDTO(createdStudent);
     }
 
     public UserResponseDTO getUserById(long id) {
         Teacher teacher = teacherRepository.findById(id)
             .orElse(null);
+        if (teacher != null) {
+            return toResponseDTO(teacher);
+        }
         Student student = studentRepository.findById(id)
             .orElse(null);
-        if (teacher != null) {
-            return modelMapper.map(teacher, UserResponseDTO.class);
-        }
         if (student != null) {
-            return modelMapper.map(student, UserResponseDTO.class);
+            return toResponseDTO(student);
         }
         throw new ResourceNotFoundException("User not found with id: " + id);
+    }
+
+    private UserResponseDTO toResponseDTO(User user) {
+        UserResponseDTO dto = new UserResponseDTO();
+        dto.setId(user.getId());
+        dto.setName(user.getName());
+        dto.setEmail(user.getEmail());
+        dto.setRole(user.getRole().name().toLowerCase());
+        dto.setCreatedAt(user.getCreatedAt());
+        return dto;
     }
     
     public PagedResponse<ChatResponseDTO> getChats(Long id, Pageable pageable) {
@@ -72,5 +85,19 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
         Page<Chat> chatsPage = chatRepository.findByStudentsContaining(student, pageable);
         return pagedResponseMapper.toPagedResponse(chatsPage, ChatResponseDTO.class);
+    }
+
+    public PagedResponse<ChatResponseDTO> getAuthenticatedUserChats(User user, Pageable pageable) {
+        if (user instanceof Student student) {
+            Page<Chat> chatsPage = chatRepository.findByStudentsContaining(student, pageable);
+            return pagedResponseMapper.toPagedResponse(chatsPage, ChatResponseDTO.class);
+        }
+
+        if (user instanceof Teacher teacher) {
+            Page<Chat> chatsPage = chatRepository.findByTeacher(teacher, pageable);
+            return pagedResponseMapper.toPagedResponse(chatsPage, ChatResponseDTO.class);
+        }
+
+        throw new ResourceNotFoundException("User not found");
     }
 }

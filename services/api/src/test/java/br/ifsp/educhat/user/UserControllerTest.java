@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -21,6 +22,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -33,6 +36,7 @@ import br.ifsp.educhat.model.Chat;
 import br.ifsp.educhat.model.Role;
 import br.ifsp.educhat.model.Student;
 import br.ifsp.educhat.model.Teacher;
+import br.ifsp.educhat.model.UserAuthenticated;
 import br.ifsp.educhat.repository.ChatRepository;
 import br.ifsp.educhat.repository.StudentRepository;
 import br.ifsp.educhat.repository.TeacherRepository;
@@ -155,5 +159,39 @@ public class UserControllerTest {
         mockMvc.perform(get("/api/users/{id}/chats?page=0&size=5", savedStudent.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content.length()").value(2));
+    }
+
+    @Test
+    void shouldListAuthenticatedUsersChats() throws Exception {
+        Student student = new Student();
+        student.setName("John Doe");
+        student.setEmail("john.doe@gmail.com");
+        student.setPassword("john.1234");
+        Student savedStudent = studentRepository.save(student);
+
+        Teacher teacher = new Teacher();
+        teacher.setName("Jane Doe");
+        teacher.setEmail("jane.doe@hotmail.com");
+        teacher.setPassword("Bio.1234");
+        Teacher savedTeacher = teacherRepository.save(teacher);
+
+        Chat chat = new Chat();
+        chat.setSubject("Biologia");
+        chat.setTeacher(savedTeacher);
+        Chat savedChat = chatRepository.save(chat);
+        savedStudent.addToChat(savedChat);
+        savedStudent = studentRepository.save(savedStudent);
+
+        try {
+            SecurityContextHolder.getContext().setAuthentication(
+                    new UsernamePasswordAuthenticationToken(new UserAuthenticated(savedStudent), null, List.of()));
+
+            mockMvc.perform(get("/api/users/me/chats?page=0&size=5"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.content.length()").value(1))
+                    .andExpect(jsonPath("$.content[0].id").value(savedChat.getId()));
+        } finally {
+            SecurityContextHolder.clearContext();
+        }
     }
 }

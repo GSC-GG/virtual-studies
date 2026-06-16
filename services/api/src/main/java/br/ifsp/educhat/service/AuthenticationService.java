@@ -18,8 +18,8 @@ public class AuthenticationService {
     }
     
     public String authenticate(Authentication authentication) {
-        String username = authentication.getName();     
-        User user = userRepository.findByName(username)
+        String email = authentication.getName();     
+        User user = userRepository.findByEmail(email)
             .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         return jwtService.generateToken(user);
     }

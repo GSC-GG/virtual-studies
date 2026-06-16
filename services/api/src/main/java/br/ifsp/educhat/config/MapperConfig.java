@@ -20,6 +20,7 @@ import br.ifsp.educhat.dto.meeting.MeetingResponseDTO;
 import br.ifsp.educhat.dto.thanks.ThanksResponseDTO;
 import br.ifsp.educhat.dto.user.UserRegistrationDTO;
 import br.ifsp.educhat.model.*;
+import org.modelmapper.Converter;
 
 @Configuration
 public class MapperConfig {
@@ -64,8 +65,24 @@ public class MapperConfig {
                         src -> src.getStudent().getId(),
                         ThanksResponseDTO::setStudentId);
                 });
-        modelMapper.createTypeMap(UserRegistrationDTO.class, Student.class);
-        modelMapper.createTypeMap(UserRegistrationDTO.class, Teacher.class);
+        // Conversor de Role enum para String
+        Converter<Role, String> roleToString = ctx -> ctx.getSource() == null ? null : ctx.getSource().name().toLowerCase();
+        modelMapper.addConverter(roleToString);
+
+        modelMapper.createTypeMap(UserRegistrationDTO.class, Student.class)
+                .addMappings(mapper -> {
+                    mapper.using((ctx) -> {
+                        String roleStr = (String) ctx.getSource();
+                        return Role.fromString(roleStr);
+                    }).map(UserRegistrationDTO::getRole, Student::setRole);
+                });
+        modelMapper.createTypeMap(UserRegistrationDTO.class, Teacher.class)
+                .addMappings(mapper -> {
+                    mapper.using((ctx) -> {
+                        String roleStr = (String) ctx.getSource();
+                        return Role.fromString(roleStr);
+                    }).map(UserRegistrationDTO::getRole, Teacher::setRole);
+                });
         // modelMapper.addMappings(new PropertyMap<UserRegistrationDTO, Teacher>() {
             
         //     @Override
