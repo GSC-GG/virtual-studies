@@ -1,40 +1,21 @@
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { useState } from 'react'
-import { Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { Text, TextInput, TouchableOpacity, View, StyleSheet } from 'react-native'
 import { RootStackParamList } from '../types/Navigation'
 import { useNavigation } from '@react-navigation/native'
-import { authenticate } from '../services/rest'
 import { colors, commonStyles } from '../styles/theme'
-import { StyleSheet } from 'react-native'
+import useLoginViewModel from '../viewmodels/useLoginViewModel'
+import React from 'react'
 
 type LoginNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Login'>
 
 export default function LoginScreen() {
     const navigation = useNavigation<LoginNavigationProp>()
-    const [username, setUsername] = useState('')
-    const [password, setPassword] = useState('')
-    const [error, setError] = useState('')
-    const [loading, setLoading] = useState(false)
-    const [focusedField, setFocusedField] = useState<string | null>(null)
+    const vm = useLoginViewModel()
 
     const handlePress = async () => {
-        try {
-            setLoading(true)
-            setError('')
-            const token = await authenticate(username, password)
+        const token = await vm.handleLogin()
+        if (token) {
             navigation.navigate('Menu', { token })
-        } catch (err: any) {
-            if (err.response?.status === 401) {
-                if (err.response?.data?.message?.includes('sen')) {
-                    setError('Senha incorreta para este usuário.')
-                } else {
-                    setError('Email não cadastrado.')
-                }
-            } else {
-                setError('Não foi possível fazer login.')
-            }
-        } finally {
-            setLoading(false)
         }
     }
 
@@ -50,13 +31,13 @@ export default function LoginScreen() {
                         <TextInput
                             placeholder='seu@email.com'
                             placeholderTextColor={colors.muted}
-                            value={username}
-                            onChangeText={setUsername}
+                            value={vm.username}
+                            onChangeText={vm.setUsername}
                             autoCapitalize='none'
                             keyboardType='email-address'
-                            style={[commonStyles.input, focusedField === 'email' && commonStyles.focusedInput]}
-                            onFocus={() => setFocusedField('email')}
-                            onBlur={() => setFocusedField(null)}
+                            style={[commonStyles.input, vm.focusedField === 'email' && commonStyles.focusedInput]}
+                            onFocus={() => vm.setFocusedField('email')}
+                            onBlur={() => vm.setFocusedField(null)}
                         />
                     </View>
 
@@ -64,24 +45,24 @@ export default function LoginScreen() {
                         <Text style={styles.label}>Senha</Text>
                         <TextInput
                             placeholderTextColor={colors.muted}
-                            value={password}
-                            onChangeText={setPassword}
+                            value={vm.password}
+                            onChangeText={vm.setPassword}
                             secureTextEntry
-                            style={[commonStyles.input, focusedField === 'password' && commonStyles.focusedInput]}
-                            onFocus={() => setFocusedField('password')}
-                            onBlur={() => setFocusedField(null)}
+                            style={[commonStyles.input, vm.focusedField === 'password' && commonStyles.focusedInput]}
+                            onFocus={() => vm.setFocusedField('password')}
+                            onBlur={() => vm.setFocusedField(null)}
                         />
                     </View>
 
-                    {error ? <Text style={commonStyles.errorText}>{error}</Text> : null}
+                    {vm.error ? <Text style={commonStyles.errorText}>{vm.error}</Text> : null}
 
                     <TouchableOpacity
                         onPress={handlePress}
-                        disabled={loading}
+                        disabled={vm.loading}
                         style={commonStyles.primaryButton}
                     >
                         <Text style={commonStyles.primaryButtonText}>
-                            {loading ? 'Entrando...' : 'Entrar'}
+                            {vm.loading ? 'Entrando...' : 'Entrar'}
                         </Text>
                     </TouchableOpacity>
 
@@ -102,12 +83,11 @@ export default function LoginScreen() {
 
 const styles = StyleSheet.create({
     card: {
+        ...commonStyles.card,
         width: '100%',
         maxWidth: 400,
-        backgroundColor: colors.surface,
         borderRadius: 12,
         padding: 24,
-        ...commonStyles.card,
     },
     field: {
         marginBottom: 16,

@@ -1,25 +1,26 @@
 import { StyleSheet, View, Text } from "react-native"
-import { ChatInfo } from "../../types/ChatInfo"
-import { capitalize } from "../../utils/format"
+import { ChatInfo } from "../../models"
 import React from "react"
 import { BsBook, BsCalendar, BsPerson } from "react-icons/bs"
 
-export default function ChatInfoView({ subject, teacher, createdAt }: ChatInfo) {
+export default function ChatInfoView({ subject, teacherName, createdAt }: { subject?: string; teacherName?: string; createdAt?: string }) {
+    const date = createdAt ? new Date(createdAt) : null
+    const year = date && !isNaN(date.getTime()) ? date.getFullYear() : ''
     return (
         <View style={styles.container}>
             <View style={styles.row}>
                 <BsBook size={20} color="#5D5FEF" style={styles.icon} />
-                <Text style={styles.subjectText}>{subject}</Text>
+                <Text style={styles.subjectText}>{subject || ''}</Text>
             </View>
 
             <View style={styles.row}>
                 <BsPerson size={18} color="#8E8E93" style={styles.icon} />
-                <Text style={styles.secondaryText}>{`Prof. ${teacher}`}</Text>
+                <Text style={styles.secondaryText}>{`Prof. ${teacherName || ''}`}</Text>
             </View>
 
             <View style={styles.row}>
                 <BsCalendar size={16} color="#8E8E93" style={styles.icon} />
-                <Text style={styles.secondaryText}>{createdAt.year}</Text>
+                <Text style={styles.secondaryText}>{year}</Text>
             </View>
         </View>
     );

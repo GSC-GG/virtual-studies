@@ -3,6 +3,7 @@ import { Text, TouchableOpacity, View, ScrollView, StyleSheet } from 'react-nati
 import { RootStackParamList } from '../types/Navigation'
 import { useNavigation } from '@react-navigation/native'
 import { colors, commonStyles, shadows } from '../styles/theme'
+import React from 'react'
 
 type InfoNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Info'>
 

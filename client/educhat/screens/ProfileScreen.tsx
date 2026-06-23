@@ -1,42 +1,17 @@
+import React from 'react'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
-import { useEffect, useState } from 'react'
 import { Text, TouchableOpacity, View, FlatList, StyleSheet } from 'react-native'
 import { RootStackParamList } from '../types/Navigation'
-import { getMe, getScore, listAuthenticatedUserChats, ChatListItem } from '../services/rest'
-import { UserInfo } from '../types/UserInfo'
 import { colors, commonStyles, shadows } from '../styles/theme'
+import useProfileViewModel from '../viewmodels/useProfileViewModel'
 
 type ProfileScreenProps = NativeStackScreenProps<RootStackParamList, 'Profile'>
 
 export default function ProfileScreen({ navigation, route }: ProfileScreenProps) {
     const { token } = route.params
-    const [user, setUser] = useState<UserInfo | null>(null)
-    const [score, setScore] = useState<number>(0)
-    const [chats, setChats] = useState<ChatListItem[]>([])
-    const [loading, setLoading] = useState(true)
+    const vm = useProfileViewModel(token)
 
-    useEffect(() => {
-        async function fetchData() {
-            try {
-                setLoading(true)
-                const userData = await getMe(token)
-                setUser(userData)
-                if (userData.role === 'student') {
-                    const s = await getScore(token)
-                    setScore(s)
-                }
-                const chatRes = await listAuthenticatedUserChats(token)
-                setChats(chatRes.content)
-            } catch (err) {
-                console.log('Erro ao carregar perfil')
-            } finally {
-                setLoading(false)
-            }
-        }
-        fetchData()
-    }, [token])
-
-    if (loading) {
+    if (vm.loading) {
         return (
             <View style={[commonStyles.screen, { justifyContent: 'center', alignItems: 'center' }]}>
                 <Text style={commonStyles.mutedText}>Carregando...</Text>
@@ -49,20 +24,20 @@ export default function ProfileScreen({ navigation, route }: ProfileScreenProps)
             <View style={commonStyles.content}>
                 <Text style={styles.title}>Meu Perfil</Text>
 
-                {user ? (
+                {vm.user ? (
                     <View style={styles.profileCard}>
                         <View style={styles.profileHeader}>
-                            <Text style={styles.profileName}>{user.name}</Text>
+                            <Text style={styles.profileName}>{vm.user.name}</Text>
                             <View style={styles.roleBadge}>
                                 <Text style={styles.roleBadgeText}>
-                                    {user.role === 'teacher' ? 'Professor' : 'Aluno'}
+                                    {vm.user.role === 'teacher' ? 'Professor' : 'Aluno'}
                                 </Text>
                             </View>
                         </View>
-                        <Text style={commonStyles.mutedText}>{user.email}</Text>
-                        {user.role === 'student' && (
+                        <Text style={commonStyles.mutedText}>{vm.user.email}</Text>
+                        {vm.user.role === 'student' && (
                             <View style={styles.scoreRow}>
-                                <Text style={styles.scoreText}>Pontuação: {score}</Text>
+                                <Text style={styles.scoreText}>Pontuação: {vm.score}</Text>
                             </View>
                         )}
                     </View>
@@ -70,7 +45,7 @@ export default function ProfileScreen({ navigation, route }: ProfileScreenProps)
 
                 <Text style={styles.sectionTitle}>Meus Chats</Text>
                 <FlatList
-                    data={chats}
+                    data={vm.chats}
                     keyExtractor={(item) => item.id.toString()}
                     renderItem={({ item }) => (
                         <TouchableOpacity
@@ -78,17 +53,9 @@ export default function ProfileScreen({ navigation, route }: ProfileScreenProps)
                             style={styles.chatCard}
                         >
                             <Text style={styles.chatSubject}>{item.subject}</Text>
-                            {user?.role === 'student' && (
+                            {vm.user?.role === 'student' && (
                                 <TouchableOpacity
-                                    onPress={async () => {
-                                        try {
-                                            const { assignOrUnassignStudent } = await import('../services/rest')
-                                            await assignOrUnassignStudent(item.id, 0, token)
-                                            setChats(chats.filter(c => c.id !== item.id))
-                                        } catch (err) {
-                                            console.log('Erro ao sair do chat')
-                                        }
-                                    }}
+                                    onPress={() => vm.handleLeaveChat(item.id)}
                                     style={styles.leaveBtn}
                                 >
                                     <Text style={styles.leaveBtnText}>Sair do Chat</Text>

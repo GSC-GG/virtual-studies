@@ -1,22 +1,6 @@
 import axios from "axios"
 import { API_BASE } from "../viewmodels/apiBase"
-
-export type ChatListItem = {
-    id: number
-    subject: string
-    teacherId: number
-    teacherName?: string
-    createdAt: string
-}
-
-export type PagedResponse<T> = {
-    content: T[]
-    page: number
-    size: number
-    totalElements: number
-    totalPages: number
-    last: boolean
-}
+import { ChatListItem, PagedResponse } from "../models"
 
 // ---- Autenticação ----
 

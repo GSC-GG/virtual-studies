@@ -1,36 +1,49 @@
-import { useEffect, useState } from "react";
-import { API_BASE } from "./apiBase";
-import axios from "axios";
-import { ChatInfo } from "../types/ChatInfo";
-import { Temporal } from "@js-temporal/polyfill";
+import { useEffect, useState } from "react"
+import { getMe, getChatById, getUserById } from "../services/rest"
+import { ChatInfo } from "../models"
 
-export default function useChatViewModel(idChat: number) {
+export default function useChatViewModel(chatId: number, token: string) {
     const [areaIndex, setAreaIndex] = useState(0)
     const [chat, setChat] = useState<ChatInfo>({
-        id: 1,
-        subject: "Matemática",
-        teacher: "Joel",
-        createdAt: Temporal.Now.zonedDateTimeISO()
+        id: 0,
+        subject: "",
+        teacherId: 0,
+        createdAt: ""
     })
+    const [teacherName, setTeacherName] = useState<string>('')
+    const [userRole, setUserRole] = useState<'student' | 'teacher'>('student')
+    const [userId, setUserId] = useState<number>(0)
 
-    // useEffect(() => {
-    //     async function fetchChat() {
-    //         try {
-    //             const res = await axios.get(`${API_BASE}/chats/${idChat}`)
-    //             setChat(res.data)
-    //         } catch (error) {
+    useEffect(() => {
+        async function fetchChat() {
+            try {
+                const data = await getChatById(chatId, token)
+                setChat(data)
+                if (data.teacherId) {
+                    const teacherData = await getUserById(data.teacherId, token)
+                    setTeacherName(teacherData.name)
+                }
+            } catch (error) {
+                console.log('Erro ao carregar chat')
+            }
+        }
+        fetchChat()
+    }, [chatId, token])
 
-    //         }
-    //     }
+    useEffect(() => {
+        async function fetchUser() {
+            try {
+                const user = await getMe(token)
+                if (user.role === 'teacher') {
+                    setUserRole('teacher')
+                }
+                setUserId(user.id)
+            } catch (err) {
+                console.log('Erro ao carregar usuário')
+            }
+        }
+        fetchUser()
+    }, [token])
 
-    //     fetchChat()
-    // }, [chat])
-
-    // setChat({
-    //     subject: "Matemática",
-    //     teacher: "Joel",
-    //     createdAt: Temporal.Now.zonedDateTimeISO()
-    // })
-
-    return { chat, areaIndex, setAreaIndex }
+    return { chat, teacherName, areaIndex, setAreaIndex, userRole, userId }
 }

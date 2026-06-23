@@ -1,57 +1,20 @@
+import React from 'react'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
-import { useState } from 'react'
 import { Text, TextInput, TouchableOpacity, View, StyleSheet } from 'react-native'
 import { RootStackParamList } from '../types/Navigation'
-import { ChatListItem, assignOrUnassignStudent } from '../services/rest'
 import { colors, commonStyles } from '../styles/theme'
+import useSearchChatViewModel from '../viewmodels/useSearchChatViewModel'
 
 type SearchChatScreenProps = NativeStackScreenProps<RootStackParamList, 'SearchChat'>
 
 export default function SearchChatScreen({ navigation, route }: SearchChatScreenProps) {
     const { token } = route.params
-    const [subject, setSubject] = useState('')
-    const [teacher, setTeacher] = useState('')
-    const [foundChat, setFoundChat] = useState<ChatListItem | null>(null)
-    const [error, setError] = useState('')
-    const [loading, setLoading] = useState(false)
-    const [focusedField, setFocusedField] = useState<string | null>(null)
-
-    const handleSearch = async () => {
-        if (!subject.trim() && !teacher.trim()) {
-            setError('Preencha pelo menos um campo de busca.')
-            return
-        }
-        try {
-            setLoading(true)
-            setError('')
-            setFoundChat(null)
-            const res = await import('../services/rest').then(m => m.listAuthenticatedUserChats(token))
-            const found = res.content.find(c =>
-                (!subject.trim() || c.subject.toLowerCase().includes(subject.toLowerCase())) &&
-                (!teacher.trim() || (c.teacherName && c.teacherName.toLowerCase().includes(teacher.toLowerCase())))
-            )
-            if (found) {
-                setFoundChat(found)
-            } else {
-                setError('Chat não encontrado.')
-            }
-        } catch (err) {
-            setError('Erro ao buscar chat.')
-        } finally {
-            setLoading(false)
-        }
-    }
+    const vm = useSearchChatViewModel(token)
 
     const handleJoinChat = async () => {
-        if (!foundChat) return
-        try {
-            setLoading(true)
-            await assignOrUnassignStudent(foundChat.id, 0, token)
-            navigation.navigate('Chat', { chatId: foundChat.id, token })
-        } catch (err) {
-            setError('Não foi possível ingressar no chat.')
-        } finally {
-            setLoading(false)
+        const success = await vm.handleJoinChat()
+        if (success && vm.foundChat) {
+            navigation.navigate('Chat', { chatId: vm.foundChat.id, token })
         }
     }
 
@@ -69,11 +32,11 @@ export default function SearchChatScreen({ navigation, route }: SearchChatScreen
                         <TextInput
                             placeholder='Nome da matéria'
                             placeholderTextColor={colors.muted}
-                            value={subject}
-                            onChangeText={setSubject}
-                            style={[commonStyles.input, focusedField === 'subject' && commonStyles.focusedInput]}
-                            onFocus={() => setFocusedField('subject')}
-                            onBlur={() => setFocusedField(null)}
+                            value={vm.subject}
+                            onChangeText={vm.setSubject}
+                            style={[commonStyles.input, vm.focusedField === 'subject' && commonStyles.focusedInput]}
+                            onFocus={() => vm.setFocusedField('subject')}
+                            onBlur={() => vm.setFocusedField(null)}
                         />
                     </View>
 
@@ -82,38 +45,38 @@ export default function SearchChatScreen({ navigation, route }: SearchChatScreen
                         <TextInput
                             placeholder='Nome do professor'
                             placeholderTextColor={colors.muted}
-                            value={teacher}
-                            onChangeText={setTeacher}
-                            style={[commonStyles.input, focusedField === 'teacher' && commonStyles.focusedInput]}
-                            onFocus={() => setFocusedField('teacher')}
-                            onBlur={() => setFocusedField(null)}
+                            value={vm.teacher}
+                            onChangeText={vm.setTeacher}
+                            style={[commonStyles.input, vm.focusedField === 'teacher' && commonStyles.focusedInput]}
+                            onFocus={() => vm.setFocusedField('teacher')}
+                            onBlur={() => vm.setFocusedField(null)}
                         />
                     </View>
 
-                    {error ? <Text style={commonStyles.errorText}>{error}</Text> : null}
+                    {vm.error ? <Text style={commonStyles.errorText}>{vm.error}</Text> : null}
 
-                    {foundChat ? (
+                    {vm.foundChat ? (
                         <View style={styles.resultCard}>
-                            <Text style={styles.resultSubject}>{foundChat.subject}</Text>
-                            <Text style={commonStyles.mutedText}>Professor ID: {foundChat.teacherId}</Text>
+                            <Text style={styles.resultSubject}>{vm.foundChat.subject}</Text>
+                            <Text style={commonStyles.mutedText}>Professor ID: {vm.foundChat.teacherId}</Text>
                             <TouchableOpacity
                                 onPress={handleJoinChat}
-                                disabled={loading}
+                                disabled={vm.loading}
                                 style={[commonStyles.primaryButton, { marginTop: 12 }]}
                             >
                                 <Text style={commonStyles.primaryButtonText}>
-                                    {loading ? 'Ingressando...' : 'Ingressar em Chat'}
+                                    {vm.loading ? 'Ingressando...' : 'Ingressar em Chat'}
                                 </Text>
                             </TouchableOpacity>
                         </View>
                     ) : (
                         <TouchableOpacity
-                            onPress={handleSearch}
-                            disabled={loading}
+                            onPress={vm.handleSearch}
+                            disabled={vm.loading}
                             style={commonStyles.primaryButton}
                         >
                             <Text style={commonStyles.primaryButtonText}>
-                                {loading ? 'Buscando...' : 'Buscar Chat'}
+                                {vm.loading ? 'Buscando...' : 'Buscar Chat'}
                             </Text>
                         </TouchableOpacity>
                     )}
@@ -138,7 +101,6 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         padding: 24,
         alignSelf: 'center',
-        ...commonStyles.card,
     },
     field: {
         marginBottom: 16,

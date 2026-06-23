@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from "react-native";
-import { UserInfo } from "../../types/UserInfo";
+import { UserInfo } from "../../models";
 import { BsMortarboard, BsPerson } from "react-icons/bs";
 
 export default function User({ id, name, email, role }: UserInfo) {

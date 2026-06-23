@@ -4,6 +4,7 @@ import useChatAreaViewModel from "../../viewmodels/useChatAreaViewModel"
 import { BsClockHistory, BsCamera, BsSendFill } from "react-icons/bs";
 import { Temporal } from "@js-temporal/polyfill";
 import { useChatContext } from "../../viewmodels/ChatContext";
+import React from "react";
 
 export default function ChatArea() {
     const { chatId, token, userId } = useChatContext()
@@ -29,7 +30,7 @@ export default function ChatArea() {
                 renderItem={({ item }) => (
                     <Message
                         {...item}
-                        authorIsMe={item.author?.id === userId}
+                        authorIsMe={item.authorId === userId}
                     />
                 )}
                 contentContainerStyle={styles.listPadding}

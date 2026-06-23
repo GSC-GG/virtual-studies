@@ -1,57 +1,25 @@
+import React from 'react'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
-import { useEffect, useState } from 'react'
 import { FlatList, Text, TouchableOpacity, View, StyleSheet } from 'react-native'
-import { ChatListItem, listAuthenticatedUserChats, getMe, getScore } from '../services/rest'
 import { RootStackParamList } from '../types/Navigation'
-import { UserInfo } from '../types/UserInfo'
 import { colors, commonStyles, shadows } from '../styles/theme'
+import useMenuViewModel from '../viewmodels/useMenuViewModel'
 
 type MenuScreenProps = NativeStackScreenProps<RootStackParamList, 'Menu'>
 
 export default function MenuScreen({ navigation, route }: MenuScreenProps) {
     const { token } = route.params
-    const [chats, setChats] = useState<ChatListItem[]>([])
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState('')
-    const [user, setUser] = useState<UserInfo | null>(null)
-    const [score, setScore] = useState<number>(0)
-
-    useEffect(() => {
-        async function fetchData() {
-            try {
-                setLoading(true)
-                setError('')
-                const [chatResponse, userData] = await Promise.all([
-                    listAuthenticatedUserChats(token),
-                    getMe(token),
-                ])
-                setChats(chatResponse.content)
-                setUser(userData)
-                if (userData.role === 'student') {
-                    const s = await getScore(token)
-                    setScore(s)
-                }
-            } catch (err) {
-                setError('Não foi possível carregar seus chats.')
-            } finally {
-                setLoading(false)
-            }
-        }
-        fetchData()
-    }, [token])
-
-    const isTeacher = user?.role === 'teacher'
+    const vm = useMenuViewModel(token)
 
     return (
         <View style={commonStyles.screen}>
-            {/* Header */}
             <View style={styles.header}>
                 <View style={styles.headerTop}>
                     <View>
                         <Text style={styles.greeting}>Meus Chats</Text>
-                        {user && (
+                        {vm.user && (
                             <Text style={commonStyles.mutedText}>
-                                {isTeacher ? 'Professor(a)' : 'Aluno(a)'} — {user.name}
+                                {vm.isTeacher ? 'Professor(a)' : 'Aluno(a)'} — {vm.user.name}
                             </Text>
                         )}
                     </View>
@@ -71,18 +39,17 @@ export default function MenuScreen({ navigation, route }: MenuScreenProps) {
                     </View>
                 </View>
 
-                {user?.role === 'student' && (
+                {vm.user?.role === 'student' && (
                     <View style={styles.scoreCard}>
-                        <Text style={styles.scoreText}>Pontuação: {score}</Text>
+                        <Text style={styles.scoreText}>Pontuação: {vm.score}</Text>
                     </View>
                 )}
             </View>
 
-            {/* Botão de ação */}
             <View style={styles.actionBar}>
                 <TouchableOpacity
                     onPress={() => {
-                        if (isTeacher) {
+                        if (vm.isTeacher) {
                             navigation.navigate('NewChat', { token })
                         } else {
                             navigation.navigate('SearchChat', { token })
@@ -91,18 +58,17 @@ export default function MenuScreen({ navigation, route }: MenuScreenProps) {
                     style={commonStyles.primaryButton}
                 >
                     <Text style={commonStyles.primaryButtonText}>
-                        {isTeacher ? 'Criar novo Chat' : 'Adicionar Chat'}
+                        {vm.isTeacher ? 'Criar novo Chat' : 'Adicionar Chat'}
                     </Text>
                 </TouchableOpacity>
             </View>
 
-            {loading ? <Text style={styles.centered}>Carregando...</Text> : null}
-            {error ? <Text style={commonStyles.errorText}>{error}</Text> : null}
+            {vm.loading ? <Text style={styles.centered}>Carregando...</Text> : null}
+            {vm.error ? <Text style={commonStyles.errorText}>{vm.error}</Text> : null}
 
-            {/* Lista de chats */}
             <FlatList
                 style={styles.list}
-                data={chats}
+                data={vm.chats}
                 keyExtractor={(item) => String(item.id)}
                 renderItem={({ item }) => (
                     <TouchableOpacity
@@ -115,7 +81,7 @@ export default function MenuScreen({ navigation, route }: MenuScreenProps) {
                     </TouchableOpacity>
                 )}
                 ListEmptyComponent={
-                    !loading ? (
+                    !vm.loading ? (
                         <Text style={styles.emptyText}>Nenhum chat encontrado.</Text>
                     ) : null
                 }

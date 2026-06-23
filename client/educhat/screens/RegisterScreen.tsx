@@ -1,51 +1,21 @@
+import React from 'react'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { useState } from 'react'
-import { Text, TextInput, TouchableOpacity, View, ScrollView } from 'react-native'
+import { Text, TextInput, TouchableOpacity, View, ScrollView, StyleSheet } from 'react-native'
 import { RootStackParamList } from '../types/Navigation'
 import { useNavigation } from '@react-navigation/native'
-import { registerUser } from '../services/rest'
 import { colors, commonStyles } from '../styles/theme'
-import { StyleSheet } from 'react-native'
+import useRegisterViewModel from '../viewmodels/useRegisterViewModel'
 
 type RegisterNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Register'>
 
 export default function RegisterScreen() {
     const navigation = useNavigation<RegisterNavigationProp>()
-    const [name, setName] = useState('')
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
-    const [role, setRole] = useState<'student' | 'teacher'>('student')
-    const [error, setError] = useState('')
-    const [loading, setLoading] = useState(false)
-    const [focusedField, setFocusedField] = useState<string | null>(null)
+    const vm = useRegisterViewModel()
 
     const handleRegister = async () => {
-        if (name.length < 2 || name.length > 100) {
-            setError('Nome deve ter entre 2 e 100 caracteres.')
-            return
-        }
-        if (!email.includes('@')) {
-            setError('Email inválido.')
-            return
-        }
-        if (password.length < 8) {
-            setError('Senha deve ter no mínimo 8 caracteres.')
-            return
-        }
-
-        try {
-            setLoading(true)
-            setError('')
-            await registerUser(name, email, password, role)
+        const success = await vm.handleRegister()
+        if (success) {
             navigation.navigate('Login')
-        } catch (err: any) {
-            if (err.response?.status === 409) {
-                setError('Email já cadastrado.')
-            } else {
-                setError('Não foi possível realizar o cadastro.')
-            }
-        } finally {
-            setLoading(false)
         }
     }
 
@@ -61,11 +31,11 @@ export default function RegisterScreen() {
                         <TextInput
                             placeholder='Nome completo'
                             placeholderTextColor={colors.muted}
-                            value={name}
-                            onChangeText={setName}
-                            style={[commonStyles.input, focusedField === 'name' && commonStyles.focusedInput]}
-                            onFocus={() => setFocusedField('name')}
-                            onBlur={() => setFocusedField(null)}
+                            value={vm.name}
+                            onChangeText={vm.setName}
+                            style={[commonStyles.input, vm.focusedField === 'name' && commonStyles.focusedInput]}
+                            onFocus={() => vm.setFocusedField('name')}
+                            onBlur={() => vm.setFocusedField(null)}
                         />
                     </View>
 
@@ -74,13 +44,13 @@ export default function RegisterScreen() {
                         <TextInput
                             placeholder='seu@email.com'
                             placeholderTextColor={colors.muted}
-                            value={email}
-                            onChangeText={setEmail}
+                            value={vm.email}
+                            onChangeText={vm.setEmail}
                             autoCapitalize='none'
                             keyboardType='email-address'
-                            style={[commonStyles.input, focusedField === 'email' && commonStyles.focusedInput]}
-                            onFocus={() => setFocusedField('email')}
-                            onBlur={() => setFocusedField(null)}
+                            style={[commonStyles.input, vm.focusedField === 'email' && commonStyles.focusedInput]}
+                            onFocus={() => vm.setFocusedField('email')}
+                            onBlur={() => vm.setFocusedField(null)}
                         />
                     </View>
 
@@ -89,12 +59,12 @@ export default function RegisterScreen() {
                         <TextInput
                             placeholder='Mínimo 8 caracteres'
                             placeholderTextColor={colors.muted}
-                            value={password}
-                            onChangeText={setPassword}
+                            value={vm.password}
+                            onChangeText={vm.setPassword}
                             secureTextEntry
-                            style={[commonStyles.input, focusedField === 'password' && commonStyles.focusedInput]}
-                            onFocus={() => setFocusedField('password')}
-                            onBlur={() => setFocusedField(null)}
+                            style={[commonStyles.input, vm.focusedField === 'password' && commonStyles.focusedInput]}
+                            onFocus={() => vm.setFocusedField('password')}
+                            onBlur={() => vm.setFocusedField(null)}
                         />
                         <Text style={commonStyles.mutedText}>Mínimo 8 caracteres</Text>
                     </View>
@@ -103,29 +73,29 @@ export default function RegisterScreen() {
                         <Text style={styles.label}>Tipo de usuário</Text>
                         <View style={styles.roleRow}>
                             <TouchableOpacity
-                                onPress={() => setRole('student')}
-                                style={[styles.roleOption, role === 'student' && styles.roleOptionActive]}
+                                onPress={() => vm.setRole('student')}
+                                style={[styles.roleOption, vm.role === 'student' && styles.roleOptionActive]}
                             >
-                                <Text style={[styles.roleText, role === 'student' && styles.roleTextActive]}>Aluno</Text>
+                                <Text style={[styles.roleText, vm.role === 'student' && styles.roleTextActive]}>Aluno</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
-                                onPress={() => setRole('teacher')}
-                                style={[styles.roleOption, role === 'teacher' && styles.roleOptionActive]}
+                                onPress={() => vm.setRole('teacher')}
+                                style={[styles.roleOption, vm.role === 'teacher' && styles.roleOptionActive]}
                             >
-                                <Text style={[styles.roleText, role === 'teacher' && styles.roleTextActive]}>Professor</Text>
+                                <Text style={[styles.roleText, vm.role === 'teacher' && styles.roleTextActive]}>Professor</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
 
-                    {error ? <Text style={commonStyles.errorText}>{error}</Text> : null}
+                    {vm.error ? <Text style={commonStyles.errorText}>{vm.error}</Text> : null}
 
                     <TouchableOpacity
                         onPress={handleRegister}
-                        disabled={loading}
+                        disabled={vm.loading}
                         style={commonStyles.primaryButton}
                     >
                         <Text style={commonStyles.primaryButtonText}>
-                            {loading ? 'Cadastrando...' : 'Cadastrar'}
+                            {vm.loading ? 'Cadastrando...' : 'Cadastrar'}
                         </Text>
                     </TouchableOpacity>
 
@@ -151,7 +121,6 @@ const styles = StyleSheet.create({
         backgroundColor: colors.surface,
         borderRadius: 12,
         padding: 24,
-        ...commonStyles.card,
     },
     field: {
         marginBottom: 16,

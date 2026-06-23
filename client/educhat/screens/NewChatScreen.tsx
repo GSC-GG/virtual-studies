@@ -1,33 +1,20 @@
+import React from 'react'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
-import { useState } from 'react'
 import { Text, TextInput, TouchableOpacity, View, StyleSheet } from 'react-native'
 import { RootStackParamList } from '../types/Navigation'
-import { createChat } from '../services/rest'
 import { colors, commonStyles } from '../styles/theme'
+import useNewChatViewModel from '../viewmodels/useNewChatViewModel'
 
 type NewChatScreenProps = NativeStackScreenProps<RootStackParamList, 'NewChat'>
 
 export default function NewChatScreen({ navigation, route }: NewChatScreenProps) {
     const { token } = route.params
-    const [subject, setSubject] = useState('')
-    const [error, setError] = useState('')
-    const [loading, setLoading] = useState(false)
-    const [focused, setFocused] = useState(false)
+    const vm = useNewChatViewModel(token)
 
     const handleCreate = async () => {
-        if (subject.length < 3 || subject.length > 120) {
-            setError('Nome da matéria deve ter entre 3 e 120 caracteres.')
-            return
-        }
-        try {
-            setLoading(true)
-            setError('')
-            const newChat = await createChat(subject, token)
-            navigation.navigate('Chat', { chatId: newChat.id, token })
-        } catch (err: any) {
-            setError('Não foi possível criar o chat.')
-        } finally {
-            setLoading(false)
+        const chatId = await vm.handleCreate()
+        if (chatId) {
+            navigation.navigate('Chat', { chatId, token })
         }
     }
 
@@ -45,24 +32,24 @@ export default function NewChatScreen({ navigation, route }: NewChatScreenProps)
                         <TextInput
                             placeholder='Ex: Matemática, Física...'
                             placeholderTextColor={colors.muted}
-                            value={subject}
-                            onChangeText={setSubject}
-                            style={[commonStyles.input, focused && commonStyles.focusedInput]}
-                            onFocus={() => setFocused(true)}
-                            onBlur={() => setFocused(false)}
+                            value={vm.subject}
+                            onChangeText={vm.setSubject}
+                            style={[commonStyles.input, vm.focused && commonStyles.focusedInput]}
+                            onFocus={() => vm.setFocused(true)}
+                            onBlur={() => vm.setFocused(false)}
                         />
                         <Text style={commonStyles.mutedText}>Mínimo 3, máximo 120 caracteres</Text>
                     </View>
 
-                    {error ? <Text style={commonStyles.errorText}>{error}</Text> : null}
+                    {vm.error ? <Text style={commonStyles.errorText}>{vm.error}</Text> : null}
 
                     <TouchableOpacity
                         onPress={handleCreate}
-                        disabled={loading}
+                        disabled={vm.loading}
                         style={commonStyles.primaryButton}
                     >
                         <Text style={commonStyles.primaryButtonText}>
-                            {loading ? 'Criando...' : 'Criar Chat'}
+                            {vm.loading ? 'Criando...' : 'Criar Chat'}
                         </Text>
                     </TouchableOpacity>
 
@@ -86,7 +73,6 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         padding: 24,
         alignSelf: 'center',
-        ...commonStyles.card,
     },
     field: {
         marginBottom: 16,

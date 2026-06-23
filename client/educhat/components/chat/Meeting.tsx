@@ -1,11 +1,10 @@
-import { Temporal } from "@js-temporal/polyfill"
 import { BsCameraVideo, BsCalendar4Event } from "react-icons/bs"
 import { StyleSheet, Text, TouchableOpacity, View, Linking } from "react-native"
-import { capitalize } from "../../utils/format"
-import { MeetingInfo } from "../../types/MeetingInfo"
+import { MeetingInfo } from "../../models"
 
 export default function Meeting({ id, title, description, link, date, closed = false }: MeetingInfo) {
-    const dateFormatted = `${date.day || '10'}/${date.month || '11'}/${date.year} às ${date.hour}:${date.minute}`;
+    const d = new Date(date)
+    const dateFormatted = `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()} às ${d.getHours()}:${d.getMinutes()}`
 
     return (
         <View style={styles.card}>

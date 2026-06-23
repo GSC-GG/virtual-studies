@@ -1,11 +1,5 @@
 import { createContext, useContext } from "react"
-
-export type ChatContextData = {
-    chatId: number
-    token: string
-    userRole: 'student' | 'teacher'
-    userId?: number
-}
+import { ChatContextData } from "../models"
 
 export const ChatContext = createContext<ChatContextData>({
     chatId: 0,

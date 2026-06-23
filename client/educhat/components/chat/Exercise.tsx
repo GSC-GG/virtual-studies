@@ -1,8 +1,6 @@
-import { Temporal } from "@js-temporal/polyfill"
 import { BsPencil, BsCalendar4Event } from "react-icons/bs"
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native"
-import { capitalize } from "../../utils/format"
-import { ExerciseInfo } from "../../types/ExerciseInfo"
+import { ExerciseInfo } from "../../models"
 import { useNavigation } from "@react-navigation/native"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { RootStackParamList } from "../../types/Navigation"
@@ -13,7 +11,8 @@ type NavigationProp = NativeStackNavigationProp<RootStackParamList>
 export default function Exercise({ id, title, createdAt }: ExerciseInfo) {
     const navigation = useNavigation<NavigationProp>()
     const { chatId, token } = useChatContext()
-    const dateFormatted = `${createdAt.day || '08'}/${createdAt.month || '11'}/${createdAt.year}`;
+    const date = new Date(createdAt)
+    const dateFormatted = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`
 
     return (
         <View style={styles.card}>

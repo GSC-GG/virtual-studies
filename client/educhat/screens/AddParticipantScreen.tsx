@@ -1,67 +1,15 @@
+import React from 'react'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
-import { useEffect, useState } from 'react'
 import { Text, TextInput, TouchableOpacity, View, FlatList, StyleSheet } from 'react-native'
 import { RootStackParamList } from '../types/Navigation'
-import { listAllStudents, assignOrUnassignStudent, listAuthenticatedUserChats } from '../services/rest'
-import { colors, commonStyles, shadows } from '../styles/theme'
+import { colors, commonStyles } from '../styles/theme'
+import useAddParticipantViewModel from '../viewmodels/useAddParticipantViewModel'
 
 type AddParticipantScreenProps = NativeStackScreenProps<RootStackParamList, 'AddParticipant'>
 
 export default function AddParticipantScreen({ navigation, route }: AddParticipantScreenProps) {
     const { chatId, token } = route.params
-    const [search, setSearch] = useState('')
-    const [students, setStudents] = useState<any[]>([])
-    const [chatStudents, setChatStudents] = useState<Set<number>>(new Set())
-    const [loading, setLoading] = useState(true)
-    const [adding, setAdding] = useState<number | null>(null)
-    const [error, setError] = useState('')
-    const [focused, setFocused] = useState(false)
-
-    useEffect(() => {
-        async function fetchData() {
-            try {
-                setLoading(true)
-                const [allStudentsRes] = await Promise.all([
-                    listAllStudents(token),
-                ])
-
-                const allStudents = allStudentsRes.content || []
-                setStudents(allStudents)
-            } catch (err) {
-                setError('Erro ao carregar estudantes.')
-            } finally {
-                setLoading(false)
-            }
-        }
-        fetchData()
-    }, [token])
-
-    const handleAddStudent = async (studentId: number) => {
-        try {
-            setAdding(studentId)
-            setError('')
-            await assignOrUnassignStudent(chatId, studentId, token)
-
-            setChatStudents(prev => {
-                const next = new Set(prev)
-                if (next.has(studentId)) {
-                    next.delete(studentId)
-                } else {
-                    next.add(studentId)
-                }
-                return next
-            })
-        } catch (err: any) {
-            setError('Erro ao adicionar estudante.')
-        } finally {
-            setAdding(null)
-        }
-    }
-
-    const filteredStudents = students.filter(s =>
-        s.name?.toLowerCase().includes(search.toLowerCase()) ||
-        s.email?.toLowerCase().includes(search.toLowerCase())
-    )
+    const vm = useAddParticipantViewModel(chatId, token)
 
     return (
         <View style={commonStyles.screen}>
@@ -76,24 +24,24 @@ export default function AddParticipantScreen({ navigation, route }: AddParticipa
                         <TextInput
                             placeholder='Buscar estudante...'
                             placeholderTextColor={colors.muted}
-                            value={search}
-                            onChangeText={setSearch}
-                            style={[commonStyles.input, focused && commonStyles.focusedInput]}
-                            onFocus={() => setFocused(true)}
-                            onBlur={() => setFocused(false)}
+                            value={vm.search}
+                            onChangeText={vm.setSearch}
+                            style={[commonStyles.input, vm.focused && commonStyles.focusedInput]}
+                            onFocus={() => vm.setFocused(true)}
+                            onBlur={() => vm.setFocused(false)}
                         />
                     </View>
 
-                    {error ? <Text style={commonStyles.errorText}>{error}</Text> : null}
+                    {vm.error ? <Text style={commonStyles.errorText}>{vm.error}</Text> : null}
 
-                    {loading ? (
+                    {vm.loading ? (
                         <Text style={[commonStyles.mutedText, { textAlign: 'center', padding: 20 }]}>Carregando...</Text>
                     ) : (
                         <FlatList
-                            data={filteredStudents}
+                            data={vm.filteredStudents}
                             keyExtractor={(item) => item.id.toString()}
                             renderItem={({ item }) => {
-                                const isAdded = chatStudents.has(item.id)
+                                const isAdded = vm.chatStudents.has(item.id)
                                 return (
                                     <View style={styles.studentRow}>
                                         <View style={styles.studentInfo}>
@@ -101,12 +49,12 @@ export default function AddParticipantScreen({ navigation, route }: AddParticipa
                                             <Text style={commonStyles.mutedText}>{item.email}</Text>
                                         </View>
                                         <TouchableOpacity
-                                            onPress={() => handleAddStudent(item.id)}
-                                            disabled={adding === item.id}
+                                            onPress={() => vm.handleAddStudent(item.id)}
+                                            disabled={vm.adding === item.id}
                                             style={[styles.addBtn, isAdded && styles.addedBtn]}
                                         >
                                             <Text style={[styles.addBtnText, isAdded && styles.addedBtnText]}>
-                                                {adding === item.id ? '...' : isAdded ? 'Adicionado' : 'Adicionar'}
+                                                {vm.adding === item.id ? '...' : isAdded ? 'Adicionado' : 'Adicionar'}
                                             </Text>
                                         </TouchableOpacity>
                                     </View>
@@ -114,7 +62,7 @@ export default function AddParticipantScreen({ navigation, route }: AddParticipa
                             }}
                             ListEmptyComponent={
                                 <Text style={[commonStyles.mutedText, { textAlign: 'center', padding: 20 }]}>
-                                    {search ? 'Nenhum estudante encontrado.' : 'Nenhum estudante disponível.'}
+                                    {vm.search ? 'Nenhum estudante encontrado.' : 'Nenhum estudante disponível.'}
                                 </Text>
                             }
                             showsVerticalScrollIndicator={false}
@@ -141,7 +89,6 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         padding: 24,
         alignSelf: 'center',
-        ...commonStyles.card,
     },
     field: {
         marginBottom: 16,

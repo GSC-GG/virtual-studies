@@ -1,40 +1,17 @@
+import React from 'react'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
-import { useEffect, useState } from 'react'
 import { Text, TouchableOpacity, View, Linking, StyleSheet } from 'react-native'
 import { RootStackParamList } from '../types/Navigation'
 import { colors, commonStyles, shadows } from '../styles/theme'
+import useContentViewViewModel from '../viewmodels/useContentViewViewModel'
 
 type ContentViewScreenProps = NativeStackScreenProps<RootStackParamList, 'ContentView'>
 
 export default function ContentViewScreen({ navigation, route }: ContentViewScreenProps) {
     const { chatId, contentId, contentType, token } = route.params
-    const [content, setContent] = useState<any>(null)
-    const [loading, setLoading] = useState(true)
+    const vm = useContentViewViewModel(chatId, contentId, contentType, token)
 
-    useEffect(() => {
-        async function fetchContent() {
-            try {
-                setLoading(true)
-                const { listMaterials, listExercises } = await import('../services/rest')
-                if (contentType === 'material') {
-                    const res = await listMaterials(chatId, token)
-                    const found = res.content.find((m: any) => m.id === contentId)
-                    setContent(found)
-                } else {
-                    const res = await listExercises(chatId, token)
-                    const found = res.content.find((e: any) => e.id === contentId)
-                    setContent(found)
-                }
-            } catch (err) {
-                console.log('Erro ao carregar conteúdo')
-            } finally {
-                setLoading(false)
-            }
-        }
-        fetchContent()
-    }, [chatId, contentId, contentType, token])
-
-    if (loading) {
+    if (vm.loading) {
         return (
             <View style={[commonStyles.screen, { justifyContent: 'center', alignItems: 'center' }]}>
                 <Text style={commonStyles.mutedText}>Carregando...</Text>
@@ -42,7 +19,7 @@ export default function ContentViewScreen({ navigation, route }: ContentViewScre
         )
     }
 
-    if (!content) {
+    if (!vm.content) {
         return (
             <View style={[commonStyles.screen, { justifyContent: 'center', alignItems: 'center', padding: 20 }]}>
                 <Text style={commonStyles.mutedText}>Conteúdo não encontrado.</Text>
@@ -53,40 +30,38 @@ export default function ContentViewScreen({ navigation, route }: ContentViewScre
         )
     }
 
-    const isMaterial = contentType === 'material'
-
     return (
         <View style={commonStyles.screen}>
             <View style={commonStyles.content}>
                 <View style={styles.card}>
                     <View style={styles.header}>
-                        <Text style={styles.title} numberOfLines={2}>{content.title}</Text>
-                        <View style={[styles.badge, isMaterial ? styles.badgeMaterial : styles.badgeExercise]}>
-                            <Text style={[styles.badgeText, isMaterial ? styles.badgeTextMaterial : styles.badgeTextExercise]}>
-                                {isMaterial ? 'Material' : 'Exercício'}
+                        <Text style={styles.title} numberOfLines={2}>{vm.content.title}</Text>
+                        <View style={[styles.badge, vm.isMaterial ? styles.badgeMaterial : styles.badgeExercise]}>
+                            <Text style={[styles.badgeText, vm.isMaterial ? styles.badgeTextMaterial : styles.badgeTextExercise]}>
+                                {vm.isMaterial ? 'Material' : 'Exercício'}
                             </Text>
                         </View>
                     </View>
 
-                    <Text style={styles.description}>{content.description || 'Sem descrição.'}</Text>
+                    <Text style={styles.description}>{vm.content.description || 'Sem descrição.'}</Text>
 
-                    {content.createdAt && (
+                    {vm.content.createdAt && (
                         <Text style={commonStyles.mutedText}>
-                            Publicado em: {content.createdAt.day}/{content.createdAt.month}/{content.createdAt.year}
+                            Publicado em: {new Date(vm.content.createdAt).getDate()}/{new Date(vm.content.createdAt).getMonth() + 1}/{new Date(vm.content.createdAt).getFullYear()}
                         </Text>
                     )}
 
                     <View style={{ marginTop: 20 }}>
-                        {isMaterial && content.local ? (
+                        {vm.isMaterial && vm.content.local ? (
                             <TouchableOpacity
-                                onPress={() => Linking.openURL(content.local)}
+                                onPress={() => Linking.openURL(vm.content.local)}
                                 style={commonStyles.primaryButton}
                             >
                                 <Text style={commonStyles.primaryButtonText}>Baixar / Acessar Material</Text>
                             </TouchableOpacity>
                         ) : (
                             <TouchableOpacity
-                                onPress={() => { if (content.link) Linking.openURL(content.link) }}
+                                onPress={() => { if (vm.content.link) Linking.openURL(vm.content.link) }}
                                 style={commonStyles.primaryButton}
                             >
                                 <Text style={commonStyles.primaryButtonText}>Responder Exercício</Text>

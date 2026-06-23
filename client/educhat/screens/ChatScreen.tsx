@@ -1,3 +1,4 @@
+import React from 'react'
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native"
 import ChatInfoView from "../components/chat/ChatInfoView"
 import ChatArea from "../components/chat/ChatArea"
@@ -8,32 +9,13 @@ import useChatViewModel from "../viewmodels/useChatViewModel"
 import { NativeStackScreenProps } from "@react-navigation/native-stack"
 import { RootStackParamList } from "../types/Navigation"
 import { ChatContext } from "../viewmodels/ChatContext"
-import { useEffect, useState } from "react"
-import { getMe } from "../services/rest"
 import { colors, shadows } from "../styles/theme"
 
 type ChatScreenProps = NativeStackScreenProps<RootStackParamList, 'Chat'>
 
 export default function ChatScreen({ navigation, route }: ChatScreenProps) {
     const { chatId, token } = route.params
-    const { chat, areaIndex, setAreaIndex } = useChatViewModel(chatId)
-    const [userRole, setUserRole] = useState<'student' | 'teacher'>('student')
-    const [userId, setUserId] = useState<number>(0)
-
-    useEffect(() => {
-        async function fetchUser() {
-            try {
-                const user = await getMe(token)
-                if (user.role === 'teacher') {
-                    setUserRole('teacher')
-                }
-                setUserId(user.id)
-            } catch (err) {
-                console.log('Erro ao carregar usuário')
-            }
-        }
-        fetchUser()
-    }, [token])
+    const { chat, teacherName, areaIndex, setAreaIndex, userRole, userId } = useChatViewModel(chatId, token)
 
     const menuOptions = [
         { label: 'Chat', index: 0 },
@@ -53,9 +35,8 @@ export default function ChatScreen({ navigation, route }: ChatScreenProps) {
         <ChatContext.Provider value={{ chatId, token, userRole, userId }}>
             <View style={styles.container}>
                 <ChatInfoView
-                    id={chatId}
                     subject={chat.subject}
-                    teacher={chat.teacher}
+                    teacherName={teacherName}
                     createdAt={chat.createdAt}
                 />
 
