@@ -40,7 +40,8 @@ public class ChatService {
         public ChatService(ChatRepository chatRepository, TeacherRepository teacherRepository, ModelMapper modelMapper,
                         PagedResponseMapper pagedResponseMapper, StudentRepository studentRepository,
                         UserRepository userRepository, MessageRepository messageRepository,
-                        MaterialRepository materialRepository, ExerciseRepository exerciseRepository, MeetingRepository meetingRepository) {
+                        MaterialRepository materialRepository, ExerciseRepository exerciseRepository,
+                        MeetingRepository meetingRepository) {
                 this.chatRepository = chatRepository;
                 this.exerciseRepository = exerciseRepository;
                 this.messageRepository = messageRepository;
@@ -123,40 +124,41 @@ public class ChatService {
                 return getChatStudents(chat, pageable);
         }
 
-        public MessageResponseDTO createMessage(Long idChat, MessageRequestDTO messageDto/*, User user */) {
-                userRepository.deleteAll();
-                Teacher teacher = new Teacher();
-                teacher.setName("aaa");
-                teacher.setEmail("aaa.sdfd@gmail.com");
-                teacher.setPassword("asad342.fl2");
-                teacher.setCreatedAt(LocalDateTime.now());
-                Teacher aa = teacherRepository.save(teacher);
+        public boolean userHasAccess(Long chatId, Long userId) {
 
-                Chat chat = new Chat();
-                chat.setSubject("adaf");
-                chat.setTeacher(aa);
-                Chat chaaat = chatRepository.save(chat);
-                // Chat chat = chatRepository.findById(idChat)
-                //                 .orElseThrow(() -> new ResourceNotFoundException("Chat not found with ID: " + idChat));
-                // Long authorId = user.getId();
-                Long authorId = 1L;
-                // User author = userRepository.findById(authorId)
-                //                 .orElseThrow(() -> new ResourceNotFoundException(
-                //                                 "User not found with ID: " + authorId));
-                // Student studentPossibleUser = studentRepository.findById(authorId)
-                //                 .orElse(new Student());
-                // Teacher teacherPossibleUser = teacherRepository.findById(authorId)
-                //                 .orElse(new Teacher());
-                // if (!studentPossibleUser.containsChat(chat) && !teacherPossibleUser.containsChat(chat)) {
-                //         throw new AccessDeniedException("Access Denied");
-                // }
+                Chat chat = chatRepository.findById(chatId)
+                                .orElseThrow(() -> new RuntimeException("Chat not found"));
+
+                User user = userRepository.findById(userId)
+                                .orElseThrow();
+
+                if (user instanceof Teacher teacher) {
+                        return chat.getTeacher().getId().equals(teacher.getId());
+                }
+
+                if (user instanceof Student student) {
+                        return chat.getStudents().stream()
+                                        .anyMatch(s -> s.getId().equals(student.getId()));
+                }
+
+                return false;
+        }
+
+        public MessageResponseDTO createMessage(Long chatId,
+                        MessageRequestDTO dto,
+                        User user) {
+
+                Chat chat = chatRepository.findById(chatId)
+                                .orElseThrow(() -> new ResourceNotFoundException("Chat not found"));
+
                 Message message = new Message();
-                message.setText(messageDto.getText());
-                message.setChat(chaaat);
-                message.setAuthor(aa);
+                message.setText(dto.getText());
+                message.setChat(chat);
+                message.setAuthor(user);
                 message.setCreatedAt(LocalDateTime.now());
-                Message savedMessage = messageRepository.save(message);
-                return modelMapper.map(savedMessage, MessageResponseDTO.class);
+
+                return modelMapper.map(messageRepository.save(message),
+                                MessageResponseDTO.class);
         }
 
         public PagedResponse<MessageResponseDTO> getChatMessages(Chat chat, Pageable pageable) {

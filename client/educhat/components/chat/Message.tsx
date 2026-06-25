@@ -1,21 +1,20 @@
 import { BsHeart } from "react-icons/bs";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native"
-import { MessageInfo } from "../../models";
+import { MessageInfo } from "../../types/MessageInfo";
 import React from "react";
 
 type Props = MessageInfo & {
     authorIsMe?: boolean
 }
 
-export default function Message({id, text, authorId, authorName, thanks, createdAt, authorIsMe = false}: Props) {
-    const date = new Date(createdAt)
-    const time = date.getHours().toString().padStart(2, '0') + ':' + date.getMinutes().toString().padStart(2, '0')
+export default function Message({id, text, author, thanks, createdAt, authorIsMe = false}: Props) {
+    const time = createdAt.hour.toString() + ':' + createdAt.minute.toString()
 
     return (
         <View style={[styles.wrapper, authorIsMe ? styles.myWrapper : styles.otherWrapper]}>
             <View style={[styles.bubble, authorIsMe ? styles.myBubble : styles.otherBubble]}>
                 <View style={styles.header}>
-                    <Text style={[styles.author, authorIsMe && styles.myText]}>{authorIsMe ? "Você" : authorName || "Anônimo"}</Text>
+                    <Text style={[styles.author, authorIsMe && styles.myText]}>{author?.name || "Anônimo"}</Text>
                     <Text style={[styles.time, authorIsMe && styles.myText]}>{time}</Text>
                 </View>
                 <Text style={[styles.messageText, authorIsMe && styles.myText]}>{text}</Text>

@@ -30,7 +30,7 @@ export default function ChatArea() {
                 renderItem={({ item }) => (
                     <Message
                         {...item}
-                        authorIsMe={item.authorId === userId}
+                        authorIsMe={item.author.id === userId}
                     />
                 )}
                 contentContainerStyle={styles.listPadding}

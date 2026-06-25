@@ -6,15 +6,21 @@ export class ChatSocketService {
 
   connect(
     chatId: number,
-    onMessage: (message: any) => void
+    onMessage: (message: any) => void,
+    token: string
   ) {
     this.client = new Client({
       webSocketFactory: () =>
         new WebSocket('ws://localhost:8080/ws'),
 
+      connectHeaders: {
+        Authorization: `Bearer ${token}`
+      },
+
       reconnectDelay: 5000,
 
       debug: str => {
+        console.log(str)
       },
 
       onConnect: () => {
@@ -41,15 +47,20 @@ export class ChatSocketService {
     this.client.activate()
   }
 
-  sendMessage(chatId: number, payload: any) {
+  sendMessage(chatId: number, payload: any, auth: string) {
 
     if (!this.connected) {
       return
     }
 
+    console.log(auth)
+
     this.client?.publish({
       destination: `/app/chats/${chatId}/messages`,
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
+      headers: {
+        Authorization: `Bearer ${auth}`
+      }
     })
   }
 

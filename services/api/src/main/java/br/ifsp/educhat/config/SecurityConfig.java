@@ -38,11 +38,6 @@ public class SecurityConfig {
     private Resource privateKeyResource;
 
     @Bean
-    public CustomJwtAuthenticationConverter customJwtAuthenticationConverter() {
-        return new CustomJwtAuthenticationConverter();
-    }
-
-    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http,
             CustomJwtAuthenticationConverter customJwtAuthenticationConverter) throws Exception {
         http

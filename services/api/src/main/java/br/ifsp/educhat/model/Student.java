@@ -33,8 +33,8 @@ public class Student extends User {
         this.role = Role.STUDENT;
     }
 
-    public boolean containsChat(Chat chat) {
-        return this.chats.contains(chat);
+    public boolean containsChatId(Long chatId) {
+        return chats.stream().anyMatch(c -> c.getId().equals(chatId));
     }
 
     public void addToChat(Chat chat) {

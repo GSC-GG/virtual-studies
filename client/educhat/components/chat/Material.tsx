@@ -5,6 +5,7 @@ import { useNavigation } from "@react-navigation/native"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { RootStackParamList } from "../../types/Navigation"
 import { useChatContext } from "../../viewmodels/ChatContext"
+import React from "react"
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>
 

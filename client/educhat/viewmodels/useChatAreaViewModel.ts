@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { MessageInfo } from "../models";
+import { MessageInfo } from "../types/MessageInfo";
 import { ChatSocketService } from "../services/websocket";
-import { listMessages, getUserById } from "../services/rest";
+import { getUserById, listMessages } from "../services/rest";
 
 export default function useChatAreaViewModel(idChat: number, token: string) {
     const [messages, setMessages] = useState<MessageInfo[]>([])
@@ -27,26 +27,33 @@ export default function useChatAreaViewModel(idChat: number, token: string) {
         async function loadMessages() {
             try {
                 const res = await listMessages(idChat, token)
-                const raw = res.content || []
-                const withNames = await Promise.all(
-                    raw.map(async (m: any) => {
-                        const name = await fetchAuthorName(m.authorId)
-                        return { ...m, authorName: name }
-                    })
+
+                const items = await Promise.all(
+                    (res.content || []).map(async (m: any) => ({
+                        ...m,
+                        author: await getUserById(m.authorId, token),
+                        createdAt: Temporal.ZonedDateTime.from(
+                            m.createdAt + '[' + Temporal.Now.timeZoneId() + ']'
+                        ),
+                    }))
                 )
-                setMessages(withNames)
+                console.log(items)
+                setMessages(items)
+
             } catch (err) {
                 console.log('Erro ao carregar mensagens')
             }
         }
+
         loadMessages()
     }, [idChat, token])
 
     useEffect(() => {
-        socketService.connect(idChat, async (incomingMessage: any) => {
-            const name = await fetchAuthorName(incomingMessage.authorId)
-            setMessages(prev => [...prev, { ...incomingMessage, authorName: name }])
-        })
+        socketService.connect(idChat, async incomingMessage => {
+            incomingMessage.createdAt = Temporal.ZonedDateTime.from(incomingMessage.createdAt + '[' + Temporal.Now.timeZoneId() + ']')
+            incomingMessage.author = await getUserById(incomingMessage.authorId, token)
+            setMessages(prev => [...prev, incomingMessage])
+        }, token)
 
         return () => {
             socketService.disconnect()
@@ -56,7 +63,7 @@ export default function useChatAreaViewModel(idChat: number, token: string) {
     function sendMessage(content: string) {
         socketService.sendMessage(idChat, {
             text: content
-        })
+        }, token)
     }
 
     return {

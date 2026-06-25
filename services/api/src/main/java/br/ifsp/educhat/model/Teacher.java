@@ -24,8 +24,8 @@ public class Teacher extends User {
     @OneToMany(mappedBy = "teacher", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Chat> chats = new HashSet<>();
 
-    public boolean containsChat(Chat chat) {
-        return this.chats.contains(chat);
+    public boolean containsChatId(Long chatId) {
+        return chats.stream().anyMatch(c -> c.getId().equals(chatId));
     }
 
     public void addChat(Chat chat) {
